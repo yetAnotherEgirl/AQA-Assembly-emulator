@@ -12,7 +12,7 @@ namespace AqaAssemEmulator_GUI
             // see https://aka.ms/applicationconfiguration.
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+            Application.Run(new Window());
         }
     }
 }
