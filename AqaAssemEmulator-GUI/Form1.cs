@@ -5,8 +5,7 @@ namespace AqaAssemEmulator_GUI
 
         // readonly Size size = new Size(600, 600) * 2;
 
-        public int[] fakeRam = FakeArray(200);
-        Tuple<int, int> RamTblSize = new Tuple<int, int>(0, 0);
+        public int[] fakeRam = FakeArray(1);
 
         public Window()
         {
@@ -14,12 +13,16 @@ namespace AqaAssemEmulator_GUI
             Size currentSize = this.Size;
             this.MaximumSize = currentSize;
             this.MinimumSize = currentSize;
-            RamTblSize = GetRamTblSize(fakeRam.Length);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            MemoryGrid test = new MemoryGrid(ref fakeRam, new Point(0, 0));
+            Hardware.Controls.Add(test);
+
+            int x = 0;
+            MemoryComponent memoryComponent = new MemoryComponent(50, ref x, new Point(300, 300));
+            Hardware.Controls.Add(memoryComponent);
         }
 
         private Tuple<int, int> GetRamTblSize(int size)
@@ -37,6 +40,7 @@ namespace AqaAssemEmulator_GUI
         {
             if (AssemblyTextBox.Text == "")
             {
+                System.Media.SystemSounds.Beep.Play();
                 MessageBox.Show("Assembly cannot be empty",
                                 "Save Error",
                                 MessageBoxButtons.OK,
