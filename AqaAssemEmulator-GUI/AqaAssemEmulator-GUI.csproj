@@ -9,4 +9,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Design drawings\**" />
+    <EmbeddedResource Remove="Design drawings\**" />
+    <None Remove="Design drawings\**" />
+  </ItemGroup>
+
 </Project>

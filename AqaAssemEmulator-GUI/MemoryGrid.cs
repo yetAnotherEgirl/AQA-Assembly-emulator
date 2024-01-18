@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AqaAssemEmulator_GUI.backend;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,20 +10,20 @@ namespace AqaAssemEmulator_GUI
 {
     internal class MemoryGrid : UserControl
     {
-        private int[] Memory;
+        private Memory memory;
         private int GridWidth;
         private int GridHieght;
 
         private MemoryComponent[,] MemoryComponents;
 
-        public MemoryGrid(ref int[] memory, Point Location)
+        public MemoryGrid(ref Memory memory, Point Location)
         {
             InitializeComponent(ref memory, Location);
         }
 
-        private void InitializeComponent(ref int[] memory, Point Location)
+        private void InitializeComponent(ref Memory memory, Point Location)
         {
-            Memory = memory;
+            this.memory = memory;
             GetDimensions();
 
             MemoryComponents = new MemoryComponent[GridWidth, GridHieght];
@@ -35,11 +36,11 @@ namespace AqaAssemEmulator_GUI
                 Point location = new Point(Location.X + (x * 150), Location.Y + (y * 70));
                 if (i < memory.Length)
                 {
-                    MemoryComponents[x, y] = new MemoryComponent(i, ref Memory[i], location);
+                    MemoryComponents[x, y] = new MemoryComponent(i, memory.QuereyAddress(i), location, ref memory);
                 }
                 else
                 {
-                    MemoryComponents[x, y] = new MemoryComponent(location);
+                    MemoryComponents[x, y] = new MemoryComponent(location, ref memory);
                 }
                 Controls.Add(MemoryComponents[x, y]);
             }
@@ -49,9 +50,19 @@ namespace AqaAssemEmulator_GUI
 
         private void GetDimensions()
         {
-            int size = Memory.Length;
+            int size = memory.Length;
             GridWidth = (int)Math.Ceiling(Math.Sqrt(size));
             GridHieght = (int)Math.Ceiling((double)size / GridWidth);
+        }
+
+        public void UpdateMemory()
+        {
+            for (int i = 0; i < memory.Length; i++)
+            {
+                int x = i % GridWidth;
+                int y = i / GridWidth;
+                MemoryComponents[x, y].UpdateValue();
+            }
         }
     }
 }

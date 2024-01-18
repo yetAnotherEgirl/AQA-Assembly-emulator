@@ -28,54 +28,100 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Tabs = new TabControl();
-            Hardware = new TabPage();
-            TraceTblTab = new TabPage();
+            SaveAssembly = new SaveFileDialog();
+            OpenAssembly = new OpenFileDialog();
+            Settings = new TabPage();
+            TraceTableDepthInput = new RichTextBox();
+            TraceTableDepthLabel = new Label();
+            CPUDelayInput = new RichTextBox();
+            CPUDelayLabel = new Label();
             Editor = new TabPage();
+            LoadButton = new Button();
             OpenButton = new Button();
             AssemblyTextBox = new RichTextBox();
             SaveButton = new Button();
-            Settings = new TabPage();
-            SaveAssembly = new SaveFileDialog();
-            OpenAssembly = new OpenFileDialog();
-            Tabs.SuspendLayout();
+            TraceTblTab = new TabPage();
+            Hardware = new TabPage();
+            ResetButton = new Button();
+            HaltButton = new Button();
+            LoadFileButton = new Button();
+            RunButton = new Button();
+            ShowRam = new Button();
+            Tabs = new TabControl();
+            Settings.SuspendLayout();
             Editor.SuspendLayout();
+            Hardware.SuspendLayout();
+            Tabs.SuspendLayout();
             SuspendLayout();
             // 
-            // Tabs
+            // SaveAssembly
             // 
-            Tabs.Controls.Add(Hardware);
-            Tabs.Controls.Add(TraceTblTab);
-            Tabs.Controls.Add(Editor);
-            Tabs.Controls.Add(Settings);
-            Tabs.Location = new Point(12, 12);
-            Tabs.Name = "Tabs";
-            Tabs.SelectedIndex = 0;
-            Tabs.Size = new Size(1150, 1070);
-            Tabs.TabIndex = 0;
+            SaveAssembly.DefaultExt = "aqa";
+            SaveAssembly.ShowHiddenFiles = true;
+            SaveAssembly.Title = "Save Assembly";
             // 
-            // Hardware
+            // OpenAssembly
             // 
-            Hardware.Location = new Point(8, 46);
-            Hardware.Name = "Hardware";
-            Hardware.Padding = new Padding(3);
-            Hardware.Size = new Size(1134, 1016);
-            Hardware.TabIndex = 0;
-            Hardware.Text = "Hardware view";
-            Hardware.UseVisualStyleBackColor = true;
+            OpenAssembly.DefaultExt = "aqa";
             // 
-            // TraceTblTab
+            // Settings
             // 
-            TraceTblTab.Location = new Point(8, 46);
-            TraceTblTab.Name = "TraceTblTab";
-            TraceTblTab.Padding = new Padding(3);
-            TraceTblTab.Size = new Size(1134, 1016);
-            TraceTblTab.TabIndex = 1;
-            TraceTblTab.Text = "Trace table";
-            TraceTblTab.UseVisualStyleBackColor = true;
+            Settings.Controls.Add(TraceTableDepthInput);
+            Settings.Controls.Add(TraceTableDepthLabel);
+            Settings.Controls.Add(CPUDelayInput);
+            Settings.Controls.Add(CPUDelayLabel);
+            Settings.Location = new Point(8, 46);
+            Settings.Name = "Settings";
+            Settings.Padding = new Padding(3);
+            Settings.Size = new Size(1134, 1016);
+            Settings.TabIndex = 3;
+            Settings.Text = "Settings";
+            Settings.UseVisualStyleBackColor = true;
+            // 
+            // TraceTableDepthInput
+            // 
+            TraceTableDepthInput.Location = new Point(565, 55);
+            TraceTableDepthInput.Multiline = false;
+            TraceTableDepthInput.Name = "TraceTableDepthInput";
+            TraceTableDepthInput.RightToLeft = RightToLeft.No;
+            TraceTableDepthInput.Size = new Size(200, 40);
+            TraceTableDepthInput.TabIndex = 3;
+            TraceTableDepthInput.Text = "30";
+            TraceTableDepthInput.TextChanged += TraceTableDepthInput_TextChanged;
+            TraceTableDepthInput.Enter += TraceTableDepthInput_Enter;
+            // 
+            // TraceTableDepthLabel
+            // 
+            TraceTableDepthLabel.AutoSize = true;
+            TraceTableDepthLabel.Location = new Point(6, 55);
+            TraceTableDepthLabel.Name = "TraceTableDepthLabel";
+            TraceTableDepthLabel.Size = new Size(204, 32);
+            TraceTableDepthLabel.TabIndex = 2;
+            TraceTableDepthLabel.Text = "Trace Table Depth";
+            // 
+            // CPUDelayInput
+            // 
+            CPUDelayInput.Location = new Point(565, 9);
+            CPUDelayInput.Multiline = false;
+            CPUDelayInput.Name = "CPUDelayInput";
+            CPUDelayInput.RightToLeft = RightToLeft.No;
+            CPUDelayInput.Size = new Size(200, 40);
+            CPUDelayInput.TabIndex = 1;
+            CPUDelayInput.Text = "100";
+            CPUDelayInput.TextChanged += CPUDelayInput_TextChanged;
+            // 
+            // CPUDelayLabel
+            // 
+            CPUDelayLabel.AutoSize = true;
+            CPUDelayLabel.Location = new Point(6, 9);
+            CPUDelayLabel.Name = "CPUDelayLabel";
+            CPUDelayLabel.Size = new Size(201, 32);
+            CPUDelayLabel.TabIndex = 0;
+            CPUDelayLabel.Text = "CPU delay (in ms)";
             // 
             // Editor
             // 
+            Editor.Controls.Add(LoadButton);
             Editor.Controls.Add(OpenButton);
             Editor.Controls.Add(AssemblyTextBox);
             Editor.Controls.Add(SaveButton);
@@ -86,6 +132,16 @@
             Editor.TabIndex = 2;
             Editor.Text = "Editor";
             Editor.UseVisualStyleBackColor = true;
+            // 
+            // LoadButton
+            // 
+            LoadButton.Location = new Point(926, 6);
+            LoadButton.Name = "LoadButton";
+            LoadButton.Size = new Size(202, 46);
+            LoadButton.TabIndex = 3;
+            LoadButton.Text = "Load to RAM";
+            LoadButton.UseVisualStyleBackColor = true;
+            LoadButton.Click += LoadButton_Click;
             // 
             // OpenButton
             // 
@@ -120,25 +176,93 @@
             SaveButton.UseVisualStyleBackColor = true;
             SaveButton.Click += SaveButton_Click;
             // 
-            // Settings
+            // TraceTblTab
             // 
-            Settings.Location = new Point(8, 46);
-            Settings.Name = "Settings";
-            Settings.Padding = new Padding(3);
-            Settings.Size = new Size(1134, 1016);
-            Settings.TabIndex = 3;
-            Settings.Text = "Settings";
-            Settings.UseVisualStyleBackColor = true;
+            TraceTblTab.Location = new Point(8, 46);
+            TraceTblTab.Name = "TraceTblTab";
+            TraceTblTab.Padding = new Padding(3);
+            TraceTblTab.Size = new Size(1134, 1016);
+            TraceTblTab.TabIndex = 1;
+            TraceTblTab.Text = "Trace table";
+            TraceTblTab.UseVisualStyleBackColor = true;
             // 
-            // SaveAssembly
+            // Hardware
             // 
-            SaveAssembly.DefaultExt = "aqa";
-            SaveAssembly.ShowHiddenFiles = true;
-            SaveAssembly.Title = "Save Assembly";
+            Hardware.Controls.Add(ResetButton);
+            Hardware.Controls.Add(HaltButton);
+            Hardware.Controls.Add(LoadFileButton);
+            Hardware.Controls.Add(RunButton);
+            Hardware.Controls.Add(ShowRam);
+            Hardware.Location = new Point(8, 46);
+            Hardware.Name = "Hardware";
+            Hardware.Padding = new Padding(3);
+            Hardware.Size = new Size(1134, 1016);
+            Hardware.TabIndex = 0;
+            Hardware.Text = "Hardware view";
+            Hardware.UseVisualStyleBackColor = true;
             // 
-            // OpenAssembly
+            // ResetButton
             // 
-            OpenAssembly.DefaultExt = "aqa";
+            ResetButton.Location = new Point(512, 889);
+            ResetButton.Name = "ResetButton";
+            ResetButton.Size = new Size(300, 120);
+            ResetButton.TabIndex = 4;
+            ResetButton.Text = "Reset System";
+            ResetButton.UseVisualStyleBackColor = true;
+            ResetButton.Click += ResetButton_Click;
+            // 
+            // HaltButton
+            // 
+            HaltButton.Location = new Point(828, 889);
+            HaltButton.Name = "HaltButton";
+            HaltButton.Size = new Size(300, 120);
+            HaltButton.TabIndex = 3;
+            HaltButton.Text = "Manual Halt";
+            HaltButton.UseVisualStyleBackColor = true;
+            HaltButton.Click += HaltButton_Click;
+            // 
+            // LoadFileButton
+            // 
+            LoadFileButton.Location = new Point(259, 890);
+            LoadFileButton.Name = "LoadFileButton";
+            LoadFileButton.Size = new Size(247, 120);
+            LoadFileButton.TabIndex = 2;
+            LoadFileButton.Text = "Load from file";
+            LoadFileButton.UseVisualStyleBackColor = true;
+            LoadFileButton.Click += LoadFileButton_Click;
+            // 
+            // RunButton
+            // 
+            RunButton.Location = new Point(6, 889);
+            RunButton.Name = "RunButton";
+            RunButton.Size = new Size(247, 120);
+            RunButton.TabIndex = 1;
+            RunButton.Text = "Run Program";
+            RunButton.UseVisualStyleBackColor = true;
+            RunButton.Click += RunButton_Click;
+            // 
+            // ShowRam
+            // 
+            ShowRam.Font = new Font("Segoe UI", 20F);
+            ShowRam.Location = new Point(828, 6);
+            ShowRam.Name = "ShowRam";
+            ShowRam.Size = new Size(300, 800);
+            ShowRam.TabIndex = 0;
+            ShowRam.Text = "RAM";
+            ShowRam.UseVisualStyleBackColor = true;
+            ShowRam.Click += ShowRam_Click;
+            // 
+            // Tabs
+            // 
+            Tabs.Controls.Add(Hardware);
+            Tabs.Controls.Add(TraceTblTab);
+            Tabs.Controls.Add(Editor);
+            Tabs.Controls.Add(Settings);
+            Tabs.Location = new Point(12, 12);
+            Tabs.Name = "Tabs";
+            Tabs.SelectedIndex = 0;
+            Tabs.Size = new Size(1150, 1070);
+            Tabs.TabIndex = 0;
             // 
             // Window
             // 
@@ -149,22 +273,34 @@
             Name = "Window";
             Text = "AQA assembly Emulator";
             Load += Form1_Load;
-            Tabs.ResumeLayout(false);
+            Settings.ResumeLayout(false);
+            Settings.PerformLayout();
             Editor.ResumeLayout(false);
+            Hardware.ResumeLayout(false);
+            Tabs.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-
-        private TabControl Tabs;
-        private TabPage Hardware;
-        private TabPage TraceTblTab;
-        private TabPage Editor;
-        private TabPage Settings;
         private SaveFileDialog SaveAssembly;
-        private Button SaveButton;
-        private RichTextBox AssemblyTextBox;
-        private Button OpenButton;
         private OpenFileDialog OpenAssembly;
+        private TabPage Settings;
+        private TabPage Editor;
+        private Button OpenButton;
+        private RichTextBox AssemblyTextBox;
+        private Button SaveButton;
+        private TabPage TraceTblTab;
+        private TabPage Hardware;
+        private TabControl Tabs;
+        private Button LoadButton;
+        private Button ShowRam;
+        private Button RunButton;
+        private Button HaltButton;
+        private Button LoadFileButton;
+        private Button ResetButton;
+        private Label CPUDelayLabel;
+        private RichTextBox CPUDelayInput;
+        private RichTextBox TraceTableDepthInput;
+        private Label TraceTableDepthLabel;
     }
 }
