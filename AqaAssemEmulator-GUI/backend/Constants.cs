@@ -1,6 +1,6 @@
 namespace AqaAssemEmulator_GUI.backend;
 
-public static class Constants
+internal static class Constants
 {
     public const char commentChar = ';';
     public const char preProcessorIndicator = '*';

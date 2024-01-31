@@ -1,6 +1,6 @@
 namespace AqaAssemEmulator_GUI.backend;
 
-class machineCodeLine
+internal class machineCodeLine
 {
     public int instruction;
     public List<int> arguments;

@@ -52,6 +52,8 @@ namespace AqaAssemEmulator_GUI
 
             TraceTable = new TraceTable(Cpu);
             this.TraceTblTab.Controls.Add(TraceTable);
+            TraceTableDepthInput.Text = 30.ToString();
+            TraceTableDepthInput_Enter(sender, e);
             TraceTable.Show();
             CpuInfo.Show();
         }
@@ -162,12 +164,22 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunProgram()
         {
+            //TraceTable.Clear();
             try
             {
                 Cpu.halted = false;
                 CpuInfo.UpdateRegisters();
                 while (Cpu.halted == false)
                 {
+                    if (Cpu.GetProgramCounter() >= RAM.Length())
+                    {
+                        MessageBox.Show("Program counter out of bounds",
+                                        "Runtime Error",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
+                        return;
+                    }
+
                     await Task.Run(() => Cpu.Fetch());
                     UpdateSystemInfomation();
                     await Task.Run(() => Cpu.Decode());
@@ -275,19 +287,67 @@ namespace AqaAssemEmulator_GUI
         #region settings
         private void CPUDelayInput_TextChanged(object sender, EventArgs e)
         {
+            /* this is a bad way to do this, it makes it a pain for the user to type in a number
+             * the cursor will jump to the beginning of the string every time a character is entered
+             *  
+             * 
+             * CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
+             * if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
+             * CpuDelayInMs = int.Parse(CPUDelayInput.Text);
+             * Cpu.UpdateDelay(CpuDelayInMs);
+            */
+        }
+
+        private void CPUDelayInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            //account for the fact that the user will expect the enter key to set the value
+            if (e.KeyCode == Keys.Enter)
+            {
+                CPUDelayInput_Leave(sender, e);
+            }
+        }
+
+        private void CPUDelayInput_Leave(object sender, EventArgs e)
+        {
             CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
-            if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
+            if (CPUDelayInput.Text == "") CPUDelayInput.Text = Cpu.GetDelayInMs().ToString();
             CpuDelayInMs = int.Parse(CPUDelayInput.Text);
             Cpu.UpdateDelay(CpuDelayInMs);
         }
 
+        //BAD!!!
         private void TraceTableDepthInput_TextChanged(object sender, EventArgs e)
         {
-            TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
-            if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
+            /* this was done the same way as CPUDelayInput_TextChanged, the same explanation applies:
+             * 
+             * this is a bad way to do this, it makes it a pain for the user to type in a number
+             * the cursor will jump to the beginning of the string every time a character is entered
+             * 
+             * TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
+             * if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
+             */
         }
 
+        //x BAD!!!
         private void TraceTableDepthInput_Enter(object sender, EventArgs e)
+        {   /* this was another bad idea, however this code is still useful
+             * It just needs to be called from somewhere else
+             * 
+             * if (!Cpu.halted)
+             * {
+             *     MessageBox.Show("Cannot change trace table depth while CPU is running",
+             *                     "Runtime Error",
+             *                     MessageBoxButtons.OK,
+             *                     MessageBoxIcon.Error);
+             * 
+             *     TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
+             * 
+             *     return;
+             * }
+            */
+        }
+
+        private void TraceTableDepthInput_Leave(object sender, EventArgs e)
         {
             if (!Cpu.halted)
             {
@@ -295,9 +355,23 @@ namespace AqaAssemEmulator_GUI
                                 "Runtime Error",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
+
+                TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
+
                 return;
             }
-            TraceTable.UpdateDepth(int.Parse(TraceTableDepthInput.Text));
+            TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
+            if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
+            TraceTable.UpdateDepth(int.Parse(TraceTableDepthInput.Text) + 1);   //+1 because the first row is the header
+        }
+
+        private void TraceTableDepthInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            //account for the fact that the user will expect the enter key to set the value
+            if (e.KeyCode == Keys.Enter)
+            {
+                TraceTableDepthInput_Leave(sender, e);
+            }
         }
 
         #endregion settings

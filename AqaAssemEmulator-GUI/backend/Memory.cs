@@ -2,7 +2,7 @@ using System.Reflection.Emit;
 
 namespace AqaAssemEmulator_GUI.backend;
 
-class Memory
+internal class Memory
 {
     private long[] memory;
 
@@ -11,9 +11,9 @@ class Memory
         memory = new long[Size];
     }
 
-    public int Length
+    public int Length()
     {
-        get { return memory.Length; }
+        return memory.Length;
     }
 
     public long QuereyAddress(long address)

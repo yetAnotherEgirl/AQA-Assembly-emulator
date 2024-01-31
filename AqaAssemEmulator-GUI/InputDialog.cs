@@ -44,6 +44,7 @@ namespace AqaAssemEmulator_GUI
             InputTextBox = new RichTextBox();
             InputTextBox.Location = new Point(20, 80);
             InputTextBox.Size = new Size(440, 60);
+            InputTextBox.KeyDown += InputTextBox_KeyDown;
             Controls.Add(InputTextBox);
 
             OkButton = new Button();
@@ -90,6 +91,14 @@ namespace AqaAssemEmulator_GUI
                 e.Cancel = true;
                 WrongDialogEntered();
                 return;
+            }
+        }
+
+        private void InputTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                OkButton_Click(sender, e);
             }
         }
 

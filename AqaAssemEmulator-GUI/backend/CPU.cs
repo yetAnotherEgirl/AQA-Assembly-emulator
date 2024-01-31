@@ -2,7 +2,7 @@ using System.Windows.Forms;
 
 namespace AqaAssemEmulator_GUI.backend;
 
-class CPU
+internal class CPU
 {
     public bool halted = true;
 
@@ -133,6 +133,13 @@ class CPU
             case 21:
                 DUMP();
                 break;
+            case 22:
+                JMP();
+                break;
+            case 23:
+                CDP();
+                break;
+
         }
     }
 
@@ -435,6 +442,29 @@ class CPU
                 throw new ArgumentException("invalid dump command");
         }
     }
+    
+    void JMP()
+    {
+        if (instructionRegister.AddressMode == Constants.addressIndicator)
+        {
+            MemoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            ProgramCounter = (int)memoryDataRegister.GetRegister();
+        }
+        else if (instructionRegister.AddressMode == Constants.registerIndicator)
+        {
+            ProgramCounter = (int)registers[instructionRegister.arguments[1]].GetRegister();
+        }
+        else
+        {
+            ProgramCounter = instructionRegister.arguments[1];
+        }
+    }
+
+    void CDP()
+    {
+        registers[instructionRegister.arguments[0]].SetRegister(ProgramCounter); 
+    }
     #endregion extended instruction set
 
     public void Reset()
@@ -479,6 +509,11 @@ class CPU
     public long GetALU()
     {
         return ALU;
+    }
+
+    public int GetDelayInMs()
+    {
+        return DelayInMs;
     }
 
     public CPSRFlags GetCPSR()

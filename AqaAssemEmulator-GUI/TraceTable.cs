@@ -20,9 +20,10 @@ namespace AqaAssemEmulator_GUI
         int TableDepth;
         int currentRow;
 
-        RichTextBox[,] TraceTableEntries;
 
-        public TraceTable(CPU CPU,  int TableDepth = 30)
+        TextBox[,] TraceTableEntries;
+
+        public TraceTable(CPU CPU, int TableDepth = 30)
         {
             this.TableDepth = TableDepth;
             InitializeComponent(CPU);
@@ -38,51 +39,55 @@ namespace AqaAssemEmulator_GUI
             this.Hide();
             this.AutoScroll = true;
 
-/*            Evil fuckery 
- *            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
- *            {
- *                RichTextBox headerTextbox = new RichTextBox();
- *                headerTextbox.ReadOnly = true;
- *                headerTextbox.Size = EntrySize;
- *                headerTextbox.Location = new Point(i * EntrySize.Width, 0);
- *                headerTextbox.BackColor = System.Drawing.SystemColors.Control;
- *                headerTextbox.BorderStyle = BorderStyle.FixedSingle;
- *
- *                TraceTableEntries[i, 0] = headerTextbox;
- *                this.Controls.Add(headerTextbox);
- *            }   
- *
- *            for (int y = 1; y < TraceTableEntries.GetLength(1); y++)
- *            {
- *                for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
- *                {
- *                    RichTextBox entryTextbox = new RichTextBox();
- *                    entryTextbox.ReadOnly = true;
- *                    entryTextbox.Size = EntrySize;
- *                    entryTextbox.Location = new Point(x * EntrySize.Width, y * EntrySize.Height);
- *                    entryTextbox.BorderStyle = BorderStyle.FixedSingle;
- *
- *                    TraceTableEntries[x, y] = entryTextbox;
- *                    this.Controls.Add(entryTextbox);
- *                }
- *            }
- *            int sizeX = (TraceTableEntries.GetLength(0) * EntrySize.Width) + 2;
- *            int sizeY = (TraceTableEntries.GetLength(1) * EntrySize.Height) + 2;
- *            this.Size = new Size(sizeX, sizeY);
- */            
-            
+            /*            Evil fuckery 
+             *            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
+             *            {
+             *                RichTextBox headerTextbox = new RichTextBox();
+             *                headerTextbox.ReadOnly = true;
+             *                headerTextbox.Size = EntrySize;
+             *                headerTextbox.Location = new Point(i * EntrySize.Width, 0);
+             *                headerTextbox.BackColor = System.Drawing.SystemColors.Control;
+             *                headerTextbox.BorderStyle = BorderStyle.FixedSingle;
+             *
+             *                TraceTableEntries[i, 0] = headerTextbox;
+             *                this.Controls.Add(headerTextbox);
+             *            }   
+             *
+             *            for (int y = 1; y < TraceTableEntries.GetLength(1); y++)
+             *            {
+             *                for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
+             *                {
+             *                    RichTextBox entryTextbox = new RichTextBox();
+             *                    entryTextbox.ReadOnly = true;
+             *                    entryTextbox.Size = EntrySize;
+             *                    entryTextbox.Location = new Point(x * EntrySize.Width, y * EntrySize.Height);
+             *                    entryTextbox.BorderStyle = BorderStyle.FixedSingle;
+             *
+             *                    TraceTableEntries[x, y] = entryTextbox;
+             *                    this.Controls.Add(entryTextbox);
+             *                }
+             *            }
+             *            int sizeX = (TraceTableEntries.GetLength(0) * EntrySize.Width) + 2;
+             *            int sizeY = (TraceTableEntries.GetLength(1) * EntrySize.Height) + 2;
+             *            this.Size = new Size(sizeX, sizeY);
+             */
+
             this.ResumeLayout(false);
         }
-        
-
 
         public void UpdateTable(List<string> variables)
         {
+
+            if (currentRow == TableDepth - 1)
+            {
+                Scrolldown();
+            }
+
             if (variables.Count == 0)
             {
                 return;
             }
-            if(trackedVariables != variables)
+            if (trackedVariables != variables)
             {
                 InitializeTableData(variables);
             }
@@ -97,7 +102,7 @@ namespace AqaAssemEmulator_GUI
             values.AddRange(GetUniversalRegisters());
             values.AddRange(GetMemory());
 
-            if (values.Count != TraceTableEntries.GetLength(0)) 
+            if (values.Count != TraceTableEntries.GetLength(0))
                 throw new System.Exception("something broke in the trace table");
 
             for (int i = 0; i < values.Count(); i++)
@@ -132,7 +137,7 @@ namespace AqaAssemEmulator_GUI
                 int.TryParse(x.Substring(1), out _))        //...see if the rest of the string is a number, out _ is a discard
                 .Select(x => int.Parse(x.Substring(1)))     //after filtering, parse the string to an int
                 .ToList();
-                
+
             List<string> UniversalRegisters = new List<string>();
 
             foreach (int register in wantedRegisters)
@@ -166,7 +171,7 @@ namespace AqaAssemEmulator_GUI
             this.SuspendLayout();
             this.Controls.Clear();
             trackedVariables = variables;
-            TraceTableEntries = new RichTextBox[variables.Count, TableDepth];
+            TraceTableEntries = new TextBox[variables.Count, TableDepth];
 
             int EntrySizeX = (TableSize.Width - 31) / TraceTableEntries.GetLength(0);
             int EntrySizeY = 40;
@@ -175,7 +180,7 @@ namespace AqaAssemEmulator_GUI
 
             for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
             {
-                RichTextBox headerTextbox = new RichTextBox();
+                TextBox headerTextbox = new TextBox();
                 headerTextbox.ReadOnly = true;
                 headerTextbox.Size = EntrySize;
                 headerTextbox.Location = new Point(i * EntrySize.Width, 0);
@@ -191,7 +196,7 @@ namespace AqaAssemEmulator_GUI
             {
                 for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
                 {
-                    RichTextBox entryTextbox = new RichTextBox();
+                    TextBox entryTextbox = new TextBox();
                     entryTextbox.ReadOnly = true;
                     entryTextbox.Size = EntrySize;
                     entryTextbox.Location = new Point(x * EntrySize.Width, y * EntrySize.Height);
@@ -211,12 +216,23 @@ namespace AqaAssemEmulator_GUI
         public void UpdateDepth(int depth)
         {
             TableDepth = depth;
+            if (TraceTableEntries == null)
+            {
+                return;
+            }
+            InitializeTableData(trackedVariables);
         }
 
         public void Clear()
         {
             currentRow = 0;
-            foreach (RichTextBox dataBox in TraceTableEntries)
+            if (TraceTableEntries == null)
+            {
+                return;
+            }
+
+
+            foreach (TextBox dataBox in TraceTableEntries)
             {
                 if(dataBox.Text == "")
                 {
@@ -224,9 +240,29 @@ namespace AqaAssemEmulator_GUI
                 }
 
                 dataBox.Text = "";
-
-                UpdateTable(trackedVariables);
             }
+            
+            UpdateTable(trackedVariables);
+        }
+
+        void Scrolldown()
+        {
+            string[] headers = new string[TraceTableEntries.GetLength(0)];
+
+            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
+            {
+                headers[i] = TraceTableEntries[i, 0].Text;
+            }
+            Clear();
+            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
+            {
+                TraceTableEntries[i, 0].Text = headers[i];
+            }
+        }
+
+        public int GetDepth()
+        {
+            return TableDepth;
         }
     }
 }

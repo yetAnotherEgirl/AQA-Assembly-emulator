@@ -6,20 +6,27 @@ namespace AqaAssemEmulator_GUI.backend;
 //https://filestore.aqa.org.uk/resources/computing/AQA-75162-75172-ALI.PDF
 
 
-class Assembler
+internal class Assembler
 {
 
     public static string[] instructionSet =
     [ "LDR", "STR", "ADD", "SUB", "MOV", "CMP", "B", "BEQ", "BNE",
     "BGT", "BLT", "AND", "ORR", "EOR", "MVN", "LSL", "LSR", "HALT"];
 
-    public static string[] extendedInstructionSet = ["INPUT", "OUTPUT", "DUMP"];
+    public static string[] extendedInstructionSet = ["INPUT", "OUTPUT", "DUMP", "JMP", "CDP"];
 
     bool extendedInstructionSetEnabled = false;
 
     List<long> machineCode = new List<long>();
 
-    private List<string> Variables = new List<string>();
+    List<string> Variables = new List<string>();
+
+    //used for fetching line numbers for errors
+    List<string> UncompiledCode = new List<string>();
+
+    int LineNumber = 0;
+
+    List<AssemblerError> Errors = new List<AssemblerError>();
 
     public Assembler()
     {
@@ -31,10 +38,15 @@ class Assembler
         machineCode.Clear();
         Variables.Clear();
         List<string> assemblyLineList = assembly.Split('\n').ToList();
+        UncompiledCode = assemblyLineList;
         assemblyLineList = assemblyLineList.Where(x => x != "").ToList();
 
         if (Array.IndexOf(assemblyLineList.ToArray(), "HALT") == -1)
-            throw new ArgumentException("no HALT instruction found");
+        {
+            //! use AddError() instead of Errors.Add() to get line numbers
+            AssemblerError error = new("HALT instruction not found", AssemblerError.NoLineNumber, false);
+            Errors.Add(error);
+        }
 
         PreProcessAssembly(ref assemblyLineList);
         foreach (string assemblyLine in assemblyLineList)
@@ -60,13 +72,25 @@ class Assembler
 
             if (splitInstruction[0] == "EXTENDED")
             {
-                if (splitInstruction.Length != 1) throw new ArgumentException("invalid EXTENDED instruction");
+                if (splitInstruction.Length != 1)
+                {
+                    //! use AddError() instead of Errors.Add() to get line numbers
+                    int lineNumber = UncompiledCode.IndexOf(preProcessorInstruction);
+                    AssemblerError error = new("invalid EXTENDED instruction", lineNumber);
+                    Errors.Add(error);
+                };
                 extendedInstructionSetEnabled = true;
             }
 
             if (splitInstruction[0] == "INCLUDE")
             {
-                if (splitInstruction.Length != 3) throw new ArgumentException("invalid USING instruction");
+                if (splitInstruction.Length != 3)
+                {
+                    //! use AddError() instead of Errors.Add() to get line numbers
+                    int lineNumber = UncompiledCode.IndexOf(preProcessorInstruction);
+                    AssemblerError error = new("invalid INCLUDE instruction, " +
+                        "'*INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'", LineNumber);
+                }
                 string path = Path.GetFullPath(splitInstruction[1] + ".aqa");
                 string assembly = File.ReadAllText(path);
 
@@ -99,7 +123,10 @@ class Assembler
 
     public long CompileAssemblyLine(ref List<string> assemblyLineList, string assemblyLine)
     {
+        LineNumber++;
         if (string.IsNullOrEmpty(assemblyLine)) throw new ArgumentException("empty string passed to assembleLine");
+
+        assemblyLine = assemblyLine.Replace(",", "");
 
         {
             int commentStart = assemblyLine.IndexOf(Constants.commentChar);
@@ -209,6 +236,12 @@ class Assembler
             case 21: //DUMP
                 output += AssembleDumpMode(splitLine[1]);
                 break;
+            case 22: //JMP
+                output += AssembleOpperand(splitLine[1]);
+                break;
+            case 23: //CDP
+                output += AssembleRegister(splitLine[1]);
+                break;
 
 
         }
@@ -242,7 +275,7 @@ class Assembler
     public long AssembleRegister(string register, int registerOffsetIndex = 0)
     {
         Variables.Add(register);
-        if (register[0] != Constants.registerChar) throw new ArgumentException("invalid register");
+        if (register[0] != Constants.registerChar) throw new ArgumentException("invalid register on line: " + LineNumber.ToString());
         int registerAddress = 0;
         try
         {
@@ -362,6 +395,17 @@ class Assembler
     public List<string> GetVariables()
     {
         return Variables;
+    }
+
+    private void AddError(string message, string line, bool isFatal = true)
+    {
+        int lineNumber = UncompiledCode.IndexOf(line);
+        if (lineNumber == -1)
+        {
+            lineNumber = AssemblerError.ErrorInIncludedFile;
+        }
+        AssemblerError error = new(message, lineNumber, isFatal);
+        Errors.Add(error);
     }
 }
 

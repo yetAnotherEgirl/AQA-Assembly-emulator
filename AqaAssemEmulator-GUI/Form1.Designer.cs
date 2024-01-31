@@ -48,6 +48,7 @@
             RunButton = new Button();
             ShowRam = new Button();
             Tabs = new TabControl();
+            HowToTab = new TabPage();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
@@ -89,6 +90,8 @@
             TraceTableDepthInput.Text = "30";
             TraceTableDepthInput.TextChanged += TraceTableDepthInput_TextChanged;
             TraceTableDepthInput.Enter += TraceTableDepthInput_Enter;
+            TraceTableDepthInput.KeyDown += TraceTableDepthInput_KeyDown;
+            TraceTableDepthInput.Leave += TraceTableDepthInput_Leave;
             // 
             // TraceTableDepthLabel
             // 
@@ -109,6 +112,8 @@
             CPUDelayInput.TabIndex = 1;
             CPUDelayInput.Text = "100";
             CPUDelayInput.TextChanged += CPUDelayInput_TextChanged;
+            CPUDelayInput.KeyDown += CPUDelayInput_KeyDown;
+            CPUDelayInput.Leave += CPUDelayInput_Leave;
             // 
             // CPUDelayLabel
             // 
@@ -258,11 +263,22 @@
             Tabs.Controls.Add(TraceTblTab);
             Tabs.Controls.Add(Editor);
             Tabs.Controls.Add(Settings);
+            Tabs.Controls.Add(HowToTab);
             Tabs.Location = new Point(12, 12);
             Tabs.Name = "Tabs";
             Tabs.SelectedIndex = 0;
             Tabs.Size = new Size(1150, 1070);
             Tabs.TabIndex = 0;
+            // 
+            // HowToTab
+            // 
+            HowToTab.Location = new Point(8, 46);
+            HowToTab.Name = "HowToTab";
+            HowToTab.Padding = new Padding(3);
+            HowToTab.Size = new Size(1134, 1016);
+            HowToTab.TabIndex = 4;
+            HowToTab.Text = "How to use";
+            HowToTab.UseVisualStyleBackColor = true;
             // 
             // Window
             // 
@@ -302,5 +318,6 @@
         private RichTextBox CPUDelayInput;
         private RichTextBox TraceTableDepthInput;
         private Label TraceTableDepthLabel;
+        private TabPage HowToTab;
     }
 }
