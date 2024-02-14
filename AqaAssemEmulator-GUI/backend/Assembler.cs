@@ -1,6 +1,3 @@
-using System.Net.Sockets;
-using System.Reflection.PortableExecutable;
-
 namespace AqaAssemEmulator_GUI.backend;
 
 //https://filestore.aqa.org.uk/resources/computing/AQA-75162-75172-ALI.PDF
@@ -10,23 +7,41 @@ internal class Assembler
 {
 
     public static string[] instructionSet =
-    [ "LDR", "STR", "ADD", "SUB", "MOV", "CMP", "B", "BEQ", "BNE",
-    "BGT", "BLT", "AND", "ORR", "EOR", "MVN", "LSL", "LSR", "HALT"];
+    ["LDR",
+        "STR",
+        "ADD",
+        "SUB",
+        "MOV",
+        "CMP",
+        "B",
+        "BEQ",
+        "BNE",
+        "BGT",
+        "BLT",
+        "AND",
+        "ORR",
+        "EOR",
+        "MVN",
+        "LSL",
+        "LSR",
+        "HALT"];
 
     public static string[] extendedInstructionSet = ["INPUT", "OUTPUT", "DUMP", "JMP", "CDP"];
 
     bool extendedInstructionSetEnabled = false;
 
-    List<long> machineCode = new List<long>();
+    List<long> machineCode = [];
 
-    List<string> Variables = new List<string>();
+    List<string> Variables = [];
 
     //used for fetching line numbers for errors
-    List<string> UncompiledCode = new List<string>();
+    List<string> UncompiledCode = [];
+
+    List<string> assemblyLineList = [];
 
     int LineNumber = 0;
 
-    List<AssemblerError> Errors = new List<AssemblerError>();
+    List<AssemblerError> Errors = [];
 
     public Assembler()
     {
@@ -35,20 +50,22 @@ internal class Assembler
 
     public void AssembleFromString(string assembly)
     {
+        Errors.Clear();
         machineCode.Clear();
         Variables.Clear();
-        List<string> assemblyLineList = assembly.Split('\n').ToList();
+        assemblyLineList = assembly.Split('\n').ToList();
         UncompiledCode = assemblyLineList;
         assemblyLineList = assemblyLineList.Where(x => x != "").ToList();
 
+        PreProcessAssembly(ref assemblyLineList);
+
         if (Array.IndexOf(assemblyLineList.ToArray(), "HALT") == -1)
         {
-            //! use AddError() instead of Errors.Add() to get line numbers
-            AssemblerError error = new("HALT instruction not found", AssemblerError.NoLineNumber, false);
-            Errors.Add(error);
+            // pass an empty string for the line parameter as the error is the line is missing
+            Errors.Add(new("HALT instruction missing", AssemblerError.NoLineNumber, true));
         }
 
-        PreProcessAssembly(ref assemblyLineList);
+
         foreach (string assemblyLine in assemblyLineList)
         {
             machineCode.Add(CompileAssemblyLine(ref assemblyLineList, assemblyLine));
@@ -59,6 +76,21 @@ internal class Assembler
         SpecificRegisterVariables.AddRange(Variables);
         Variables = SpecificRegisterVariables;
         Variables = Variables.Where(x => !x.Contains('#')).ToList();
+
+        bool failedToCompile = false;
+        foreach (AssemblerError error in Errors)
+        {
+            if (error.IsFatal)
+            {
+                failedToCompile = true;
+                break;
+            }
+        }
+        if (failedToCompile)
+        {
+            machineCode.Clear();
+            Variables.Clear();
+        }
     }
 
     public void PreProcessAssembly(ref List<string> assemblyLineList)
@@ -74,10 +106,7 @@ internal class Assembler
             {
                 if (splitInstruction.Length != 1)
                 {
-                    //! use AddError() instead of Errors.Add() to get line numbers
-                    int lineNumber = UncompiledCode.IndexOf(preProcessorInstruction);
-                    AssemblerError error = new("invalid EXTENDED instruction", lineNumber);
-                    Errors.Add(error);
+                    AddError("invalid EXTENDED instruction, *EXTENDED takes no arguments", preProcessorInstruction);
                 };
                 extendedInstructionSetEnabled = true;
             }
@@ -86,11 +115,16 @@ internal class Assembler
             {
                 if (splitInstruction.Length != 3)
                 {
-                    //! use AddError() instead of Errors.Add() to get line numbers
-                    int lineNumber = UncompiledCode.IndexOf(preProcessorInstruction);
-                    AssemblerError error = new("invalid INCLUDE instruction, " +
-                        "'*INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'", LineNumber);
+                    AddError("invalid INCLUDE instruction, " +
+                             "'*INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'",
+                             preProcessorInstruction);
                 }
+
+                /* ToDo handle errors if the file doesn't exist
+                   * add a setting to allow the user to specify a relative path
+                   * make file extensions optional
+                   */
+
                 string path = Path.GetFullPath(splitInstruction[1] + ".aqa");
                 string assembly = File.ReadAllText(path);
 
@@ -113,7 +147,9 @@ internal class Assembler
                 }
                 else
                 {
-                    throw new ArgumentException("invalid USING instruction");
+                    AddError("invalid INCLUDE instruction, " +
+                             "'*INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'",
+                             preProcessorInstruction);
                 }
             }
         }
@@ -146,40 +182,41 @@ internal class Assembler
             default:
                 throw new ArgumentException("invalid operation");
             case 0: //label
-                if (splitLine.Length > 1) throw new ArgumentException("invalid label");
+                const string errorText = "invalid label, labels must be 1 word and are followed by a colon";
+                if (splitLine.Length > 1) AddError(errorText, assemblyLine);
                 int colonIndex = assemblyLine.IndexOf(":");
-                if (colonIndex == -1) throw new ArgumentException("invalid label");
+                if (colonIndex == -1) AddError(errorText, assemblyLine);
                 break;
             case 1: //LDR
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleMemoryReference(splitLine[2]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleMemoryReference(splitLine[2], assemblyLine);
                 break;
             case 2: //STR
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleMemoryReference(splitLine[2]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleMemoryReference(splitLine[2], assemblyLine);
                 break;
             case 3: //ADD
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 4: //SUB
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 5: //MOV
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleOpperand(splitLine[2]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleOpperand(splitLine[2], assemblyLine);
                 char[] opperand = splitLine[2].ToCharArray();
                 if (opperand[0] != Constants.registerChar && opperand[0] != Constants.decimalChar)
                 {
-                    throw new Exception("MOV used like LDR, use LDR instead");
+                    AddError("MOV has been used like a LDR, consider using LDR instead", assemblyLine, false);
                 }
                 break;
             case 6: //CMP
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleOpperand(splitLine[2]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleOpperand(splitLine[2], assemblyLine);
                 break;
             case 7: //B
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
@@ -197,50 +234,50 @@ internal class Assembler
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 12: //AND
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 13: //ORR
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 14: //EOR
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 15: //MVN
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleOpperand(splitLine[2]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleOpperand(splitLine[2], assemblyLine);
                 break;
             case 16: //LSL
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 17: //LSR
-                output += AssembleRegister(splitLine[1]);
-                output += AssembleRegister(splitLine[2], 1);
-                output += AssembleOpperand(splitLine[3]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
+                output += AssembleRegister(splitLine[2], assemblyLine, 1);
+                output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 18: //HALT
                 break;
             case 19: //INPUT    
-                output += AssembleRegister(splitLine[1]) + 1;
+                output += AssembleRegister(splitLine[1], assemblyLine) + 1;
                 break;
             case 20: //OUTPUT
-                output += AssembleRegister(splitLine[1]) + 1;
+                output += AssembleRegister(splitLine[1], assemblyLine) + 1;
                 break;
             case 21: //DUMP
-                output += AssembleDumpMode(splitLine[1]);
+                output += AssembleDumpMode(splitLine[1], assemblyLine);
                 break;
             case 22: //JMP
-                output += AssembleOpperand(splitLine[1]);
+                output += AssembleOpperand(splitLine[1], assemblyLine);
                 break;
             case 23: //CDP
-                output += AssembleRegister(splitLine[1]);
+                output += AssembleRegister(splitLine[1], assemblyLine);
                 break;
 
 
@@ -259,10 +296,19 @@ internal class Assembler
         if (opCode == 0)
         {
 
-            if (line.Length > 1) throw new ArgumentException(
-                "invalid operation, not found in instructionset (did you mean to enable extended instruction set?)");
+            if (line.Length > 1)
+            {
+                if (Array.IndexOf(extendedInstructionSet, line[0]) != -1)
+                {
+                    AddError("extended instruction set used without preprocessor flag", string.Join(" ", line));
+                }
+                else
+                {
+                    AddError("invalid operation", string.Join(" ", line));
+                }
 
-            //Console.WriteLine("label recognised");
+            };
+            //x Console.WriteLine("label recognised");
             return 0;
         }
 
@@ -272,28 +318,38 @@ internal class Assembler
         return output;
     }
 
-    public long AssembleRegister(string register, int registerOffsetIndex = 0)
+    public long AssembleRegister(string register, string line, int registerOffsetIndex = 0)
     {
         Variables.Add(register);
-        if (register[0] != Constants.registerChar) throw new ArgumentException("invalid register on line: " + LineNumber.ToString());
+        if (register[0] != Constants.registerChar)
+            AddError($"expected a register, use {Constants.registerChar}n to define a register", line);
         int registerAddress = 0;
         try
         {
+            if (register.Length == 1) throw new FormatException();
             registerAddress = int.Parse(register.Substring(1));
         }
-        catch
+        catch (FormatException)
         {
-            throw new ArgumentException("invalid register");
+            AddError("invalid register address", line);
+        }
+        catch (OverflowException)
+        {
+            AddError("invalid register address, " +
+                     "im not sure what CPU would have enough registers " +
+                     "to cause an overflow exception but the emulated one certainly doesnt", line);
         }
         int CurrentRegisterOffset = Constants.registerOffset + registerOffsetIndex;
-        if (registerAddress < 0 || registerAddress > 15) throw new ArgumentException("invalid register address");
+        if (registerAddress < 0) AddError("registers are all positive integers", line);
         long output = (long)registerAddress << CurrentRegisterOffset * Constants.bitsPerNibble;
 
         return output;
     }
 
-    public long AssembleOpperand(string opperand)
+    public long AssembleOpperand(string opperand, string line)
     {
+
+
         long output = Constants.addressIndicator;
 
         Variables.Add(opperand);
@@ -303,11 +359,16 @@ internal class Assembler
             output = (long)Constants.decimalIndicator << Constants.signBitOffset * Constants.bitsPerNibble;
             try
             {
+                if (opperand.Length == 1) throw new FormatException();
                 output += long.Parse(opperand.Substring(1));
             }
-            catch
+            catch (FormatException)
             {
-                throw new ArgumentException("invalid decimal opperand");
+                AddError("invalid decimal literal", line);
+            }
+            catch (OverflowException)
+            {
+                AddError("invalid decimal, decimal literals should be between 0 and 2^32", line);
             }
         }
         else if (opperand[0] == Constants.registerChar)
@@ -317,9 +378,15 @@ internal class Assembler
             {
                 output += long.Parse(opperand.Substring(1));
             }
-            catch
+            catch (FormatException)
             {
-                throw new ArgumentException("invalid register opperand");
+                AddError("invalid register address", line);
+            }
+            catch (OverflowException)
+            {
+                AddError("invalid register address, " +
+                         "im not sure what CPU would have enough registers " +
+                         "to cause an overflow exception but the emulated one certainly doesnt", line);
             }
         }
         else
@@ -328,11 +395,16 @@ internal class Assembler
             if (opperand[0] == Constants.registerChar) opperand = opperand.Substring(1);
             try
             {
+                if (opperand.Length == 1) throw new FormatException();
                 output += long.Parse(opperand);
             }
-            catch
+            catch (FormatException)
             {
-                throw new ArgumentException("invalid opperand");
+                AddError("invalid opperand", line);
+            }
+            catch (OverflowException)
+            {
+                AddError("opperands must be between 0 and 2^32", line);
             }
         }
 
@@ -342,18 +414,10 @@ internal class Assembler
         return output;
     }
 
-    public long AssembleMemoryReference(string memory)
+    public long AssembleMemoryReference(string memory, string line)
     {
         long memoryReference = -1;
-        try
-        {
-            memoryReference = AssembleOpperand(memory);
-        }
-        catch
-        {
-            throw new ArgumentException("invalid memory reference");
-        }
-        if (memoryReference < 0) throw new ArgumentException("invalid memory reference, must be positive");
+        memoryReference = AssembleOpperand(memory, line);
         return memoryReference;
     }
 
@@ -362,12 +426,10 @@ internal class Assembler
         label += ":";
         long output = Array.IndexOf(line.ToArray(), label);
 
-        if (output == -1) throw new ArgumentException("invalid label");
-
         return output;
     }
 
-    public long AssembleDumpMode(string mode)
+    public long AssembleDumpMode(string mode, string line)
     {
         long output = 0;
         switch (mode)
@@ -382,7 +444,8 @@ internal class Assembler
                 output = 2;
                 break;
             default:
-                throw new ArgumentException("invalid dump mode");
+                AddError("invalid dump mode, mode must be 'memory', 'registers' or 'all'", line);
+                break;
         }
         return output;
     }
@@ -397,12 +460,25 @@ internal class Assembler
         return Variables;
     }
 
+    public List<AssemblerError> GetCompilationErrors()
+    {
+        return Errors;
+    }
+
     private void AddError(string message, string line, bool isFatal = true)
     {
         int lineNumber = UncompiledCode.IndexOf(line);
         if (lineNumber == -1)
         {
-            lineNumber = AssemblerError.ErrorInIncludedFile;
+            lineNumber = assemblyLineList.IndexOf(line);
+            if (lineNumber == -1)
+            {
+                lineNumber = AssemblerError.NoLineNumber;
+            }
+            else
+            {
+                lineNumber = AssemblerError.ErrorInIncludedFile;
+            }
         }
         AssemblerError error = new(message, lineNumber, isFatal);
         Errors.Add(error);

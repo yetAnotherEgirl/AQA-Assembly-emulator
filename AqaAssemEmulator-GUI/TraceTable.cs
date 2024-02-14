@@ -13,7 +13,7 @@ namespace AqaAssemEmulator_GUI
     {
         private CPU CPU;
         private Memory RAM;
-        private List<string> trackedVariables = new List<string>();
+        private List<string> trackedVariables = [];
 
         Size TableSize = new Size(1134 - 6, 1016 - 6);
 
@@ -39,7 +39,7 @@ namespace AqaAssemEmulator_GUI
             this.Hide();
             this.AutoScroll = true;
 
-            /*            Evil fuckery 
+            /*x            Evil 
              *            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
              *            {
              *                RichTextBox headerTextbox = new RichTextBox();
@@ -207,8 +207,8 @@ namespace AqaAssemEmulator_GUI
                 }
             }
 
-            //int width = EntrySizeX * TraceTableEntries.GetLength(0) + 2;
-            //this.Size = new Size(width, TableSize.Height);
+            //x int width = EntrySizeX * TraceTableEntries.GetLength(0) + 2;
+            //x this.Size = new Size(width, TableSize.Height);
 
             this.ResumeLayout(false);
         }

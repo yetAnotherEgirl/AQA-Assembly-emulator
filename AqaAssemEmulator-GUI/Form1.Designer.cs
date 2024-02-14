@@ -49,6 +49,7 @@
             ShowRam = new Button();
             Tabs = new TabControl();
             HowToTab = new TabPage();
+            RamLabel = new Label();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
@@ -163,9 +164,8 @@
             AssemblyTextBox.AcceptsTab = true;
             AssemblyTextBox.BorderStyle = BorderStyle.FixedSingle;
             AssemblyTextBox.Cursor = Cursors.IBeam;
-            AssemblyTextBox.DetectUrls = false;
             AssemblyTextBox.Font = new Font("Cascadia Code SemiBold", 10.875F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            AssemblyTextBox.Location = new Point(6, 58);
+            AssemblyTextBox.Location = new(6, 58);
             AssemblyTextBox.Name = "AssemblyTextBox";
             AssemblyTextBox.Size = new Size(1122, 952);
             AssemblyTextBox.TabIndex = 1;
@@ -193,6 +193,7 @@
             // 
             // Hardware
             // 
+            Hardware.Controls.Add(RamLabel);
             Hardware.Controls.Add(ResetButton);
             Hardware.Controls.Add(HaltButton);
             Hardware.Controls.Add(LoadFileButton);
@@ -280,6 +281,15 @@
             HowToTab.Text = "How to use";
             HowToTab.UseVisualStyleBackColor = true;
             // 
+            // RamLabel
+            // 
+            RamLabel.AutoSize = true;
+            RamLabel.Location = new Point(905, 452);
+            RamLabel.Name = "RamLabel";
+            RamLabel.Size = new Size(165, 32);
+            RamLabel.TabIndex = 5;
+            RamLabel.Text = "(click to show)";
+            // 
             // Window
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
@@ -293,6 +303,7 @@
             Settings.PerformLayout();
             Editor.ResumeLayout(false);
             Hardware.ResumeLayout(false);
+            Hardware.PerformLayout();
             Tabs.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -319,5 +330,6 @@
         private RichTextBox TraceTableDepthInput;
         private Label TraceTableDepthLabel;
         private TabPage HowToTab;
+        private Label RamLabel;
     }
 }

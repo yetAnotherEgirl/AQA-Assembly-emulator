@@ -3,6 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace AqaAssemEmulator_GUI
 {
+    /* ToDo:
+     * make a class to display Errors
+     * add syntax highlighting to editor
+     * add page with instructionset
+     */
+
     public partial class Window : Form
     {
         CPU Cpu;
@@ -27,6 +33,14 @@ namespace AqaAssemEmulator_GUI
             this.MaximizeBox = false;
             this.MaximumSize = currentSize;
             this.MinimumSize = currentSize;
+
+            Point RamLabelPosition = new(ShowRam.Location.X + (ShowRam.Size.Width / 2) - (RamLabel.Size.Width / 2),
+                             ShowRam.Location.Y + (ShowRam.Size.Height / 2) + 40);
+
+            RamLabel.Location = RamLabelPosition;
+            RamLabel.BackColor = Color.Transparent;
+
+            RamLabel.Click += ShowRam_Click;
 
             CPUtoRAMarrow = new PictureBox();
             CPUtoRAMarrow.Image = Image.FromFile("Assets/LongArrowRight.png");
@@ -56,6 +70,7 @@ namespace AqaAssemEmulator_GUI
             TraceTableDepthInput_Enter(sender, e);
             TraceTable.Show();
             CpuInfo.Show();
+
         }
 
         void InitializeHardware()
@@ -119,40 +134,82 @@ namespace AqaAssemEmulator_GUI
                                  MessageBoxIcon.Error);
                 return;
             }
-            try
-            {
-                CompileAssembly(AssemblyTextBox.Text);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            CompileAssembly(AssemblyTextBox.Text);
         }
         #endregion editor buttons
 
-        void CompileAssembly(string assembly)
+        
+
+        async void CompileAssembly(string assembly)
         {
-            try
+            /*x
+                 try
+                 {
+                     Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
+                     Task resetRam = Task.Run(() => RAM.Reset());
+                     Task.WaitAll(assemble, resetRam);
+                     RAM.LoadMachineCode(Assembler.GetMachineCode());
+                     MessageBox.Show("Assembly loaded successfully",
+                                     "Load Success",
+                                     MessageBoxButtons.OK
+                                     );
+                     UpdateSystemInfomation();
+                     TraceTable.UpdateTable(Assembler.GetVariables());
+                 }
+                 catch (Exception e)
+                 {
+                     MessageBox.Show(e.Message,
+                                     "Compile Error",
+                                     MessageBoxButtons.OK
+                                     );
+                     throw;
+                 }
+              */
+            Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
+            Task resetRam = Task.Run(() => RAM.Reset());
+            Task.WaitAll(assemble, resetRam);
+            List<AssemblerError> errors = Assembler.GetCompilationErrors();
+
+            bool failedTocompile = IsFailure(errors);
+
+            if (failedTocompile)
             {
-                Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
-                Task resetRam = Task.Run(() => RAM.Reset());
-                Task.WaitAll(assemble, resetRam);
-                RAM.LoadMachineCode(Assembler.GetMachineCode());
-                MessageBox.Show("Assembly loaded successfully",
-                                "Load Success",
-                                MessageBoxButtons.OK
-                                );
-                UpdateSystemInfomation();
-                TraceTable.UpdateTable(Assembler.GetVariables());
+                AssemblerErrorDisplay errorDisplay = new(errors);
+                errorDisplay.Show();
+
+                return;
             }
-            catch (Exception e)
+
+            //this will only be true if the code has errors but they are none fatal
+            if(errors.Count != 0)
             {
-                MessageBox.Show(e.Message,
-                                "Compile Error",
-                                MessageBoxButtons.OK
-                                );
-                throw;
+                Task t = Task.Run(() => {
+                    AssemblerErrorDisplay errorDisplay = new(errors);
+                    errorDisplay.Show();
+                });
+                await t;
+                return;
             }
+
+            RAM.LoadMachineCode(Assembler.GetMachineCode());
+            UpdateSystemInfomation();
+        }
+
+        static bool IsFailure(List<AssemblerError> errors)
+        {
+            bool failedToCompile = false;
+            if (errors.Count != 0)
+            {
+                foreach (AssemblerError error in errors)
+                {
+                    if (error.IsFatal)
+                    {
+                        failedToCompile = true;
+                        break;
+                    }
+                }
+            }
+            return failedToCompile;
         }
 
         void UpdateSystemInfomation()
@@ -194,14 +251,14 @@ namespace AqaAssemEmulator_GUI
                 MessageBox.Show(e.Message,
                                 "Runtime Error",
                                 MessageBoxButtons.OK
-                                                                                                                             );
+                                );
                 RAM.DumpMemory("memory.Dump");
                 Cpu.DumpRegisters("registers.Dump");
             }
         }
 
         #region hardware buttons
-        private void ShowRam_Click(object sender, EventArgs e)
+        private void ShowRam_Click(object? sender, EventArgs e)
         {
             RamGrid.Show();
         }
@@ -217,14 +274,7 @@ namespace AqaAssemEmulator_GUI
                                     MessageBoxButtons.OK,
                                     MessageBoxIcon.Warning);
 
-                    try
-                    {
-                        CompileAssembly(AssemblyTextBox.Text);
-                    }
-                    catch (Exception)
-                    {
-                        return;
-                    }
+                    CompileAssembly(AssemblyTextBox.Text);
                 }
                 else
                 {
@@ -289,8 +339,8 @@ namespace AqaAssemEmulator_GUI
         {
             /* this is a bad way to do this, it makes it a pain for the user to type in a number
              * the cursor will jump to the beginning of the string every time a character is entered
-             *  
-             * 
+             */ 
+           /*x
              * CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
              * if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
              * CpuDelayInMs = int.Parse(CPUDelayInput.Text);
@@ -322,7 +372,8 @@ namespace AqaAssemEmulator_GUI
              * 
              * this is a bad way to do this, it makes it a pain for the user to type in a number
              * the cursor will jump to the beginning of the string every time a character is entered
-             * 
+             */
+           /*x
              * TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
              * if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
              */
@@ -332,7 +383,8 @@ namespace AqaAssemEmulator_GUI
         private void TraceTableDepthInput_Enter(object sender, EventArgs e)
         {   /* this was another bad idea, however this code is still useful
              * It just needs to be called from somewhere else
-             * 
+             */
+          /*x
              * if (!Cpu.halted)
              * {
              *     MessageBox.Show("Cannot change trace table depth while CPU is running",

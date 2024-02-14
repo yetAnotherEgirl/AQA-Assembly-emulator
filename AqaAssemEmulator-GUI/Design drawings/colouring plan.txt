@@ -1,0 +1,53 @@
+MOV R0, #10 ; example comment\n
+loop:
+ADD R1, R0, 100 ; another comment
+
+ -- split at every " ", \n and ","
+
+MOV 
+R0
+, 
+#10 
+; 
+example 
+comment
+\n
+loop:
+ADD 
+R1
+, 
+R0
+, 
+100 
+; 
+another 
+comment
+
+ -- join between ; and \n
+
+MOV 
+R0
+, 
+#10 
+; example comment
+\n
+loop:
+ADD 
+R1
+, 
+R0
+, 
+100 
+; another comment
+
+ -- look up colour and add to values 
+
+MOV (opcode)
+R0 (opperand)
+.
+.
+.
+
+ -- for loop thru and print
+
+
