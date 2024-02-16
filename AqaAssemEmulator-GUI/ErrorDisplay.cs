@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AqaAssemEmulator_GUI
 {
-    internal abstract class ErrorDisplay : Form
+    internal abstract class ErrorDisplay<T> : Form
     {
         protected Button OkButton;
         protected TextBox ErrorTextBox;
@@ -14,10 +14,9 @@ namespace AqaAssemEmulator_GUI
         protected bool IsFatal;
         protected Button IgnoreButton;
 
-        public bool IgnoreErrors { 
-            get;
-            protected set;
-        }
+        public event EventHandler IgnoreButtonClicked;
+
+        protected static List<T> Errors = [];
 
         protected ErrorDisplay()
         {
@@ -28,8 +27,8 @@ namespace AqaAssemEmulator_GUI
 
         protected void InitializeComponent()
         {
-            //ToDo these sizes are all fucked up
             SuspendLayout();
+
             Size = new Size(600, 450);
             MaximizeBox = false;
             MinimizeBox = false;
@@ -55,19 +54,58 @@ namespace AqaAssemEmulator_GUI
             ErrorTextBox.BackColor = Color.White;
             ErrorTextBox.ScrollBars = ScrollBars.Vertical;
 
+            this.FormClosing += OnClosing;
+
             Controls.Add(OkButton);
             Controls.Add(ErrorTextBox);
 
-            if(!IsFatal) Controls.Add(IgnoreButton);
+            // this line doesnt affect the code as we check this in the SetErrors method
+            //x if(!IsFatal) Controls.Add(IgnoreButton);
 
             ResumeLayout(false);
         }
+
+        public void SetErrors(List<T> errors)
+        {
+            SuspendLayout();
+
+            Controls.Remove(IgnoreButton);
+
+            Errors = errors;
+            IsFatal = IsFailure();
+            string[] errorText = GetErrors();
+            ErrorTextBox.Clear();
+
+            foreach (string error in errorText)
+            {
+                ErrorTextBox.AppendText(error + Environment.NewLine + Environment.NewLine);
+            }
+            if (!IsFatal) Controls.Add(IgnoreButton);
+
+            ResumeLayout(false);
+        }
+
+        protected abstract bool IsFailure();
+
+        protected abstract string[] GetErrors();
 
         protected void OkButton_Click(object? sender, EventArgs e)
         {
             Close();
         }
 
-        public abstract void IgnoreButton_Click(object? sender, EventArgs e);
+        protected void IgnoreButton_Click(object? sender, EventArgs e)
+        {
+            IgnoreButtonClicked?.Invoke(this, e);
+            Close();
+        }
+
+        protected void OnClosing(object? sender, EventArgs e)
+        {
+            Errors.Clear();
+           
+            ErrorTextBox.Clear();
+            this.Hide();
+        }
     }
 }

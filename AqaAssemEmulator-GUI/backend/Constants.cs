@@ -6,7 +6,7 @@ internal static class Constants
     public const char preProcessorIndicator = '*';
     public const char decimalChar = '#';
     public const int decimalIndicator = 1;
-    public const char registerChar = 'r';
+    public const char registerChar = 'R';
     public const int registerIndicator = 2;
     public const int addressIndicator = 0;
 

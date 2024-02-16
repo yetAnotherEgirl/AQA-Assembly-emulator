@@ -132,10 +132,10 @@ namespace AqaAssemEmulator_GUI
 
         private List<string> GetUniversalRegisters()
         {
-            List<int> wantedRegisters = trackedVariables    //get all the registers
-                .Where(x => x.StartsWith("r") &&            //see if string x starts with "r" and...
-                int.TryParse(x.Substring(1), out _))        //...see if the rest of the string is a number, out _ is a discard
-                .Select(x => int.Parse(x.Substring(1)))     //after filtering, parse the string to an int
+            List<int> wantedRegisters = trackedVariables                //get all the registers
+                .Where(x => x.StartsWith(Constants.registerChar) &&     //see if string x starts with the register char and...
+                int.TryParse(x.Substring(1), out _))                    //...see if the rest of the string is a number, out _ is a discard
+                .Select(x => int.Parse(x.Substring(1)))                 //after filtering, parse the string to an int
                 .ToList();
 
             List<string> UniversalRegisters = new List<string>();

@@ -42,6 +42,7 @@
             SaveButton = new Button();
             TraceTblTab = new TabPage();
             Hardware = new TabPage();
+            RamLabel = new Label();
             ResetButton = new Button();
             HaltButton = new Button();
             LoadFileButton = new Button();
@@ -49,7 +50,6 @@
             ShowRam = new Button();
             Tabs = new TabControl();
             HowToTab = new TabPage();
-            RamLabel = new Label();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
@@ -165,7 +165,7 @@
             AssemblyTextBox.BorderStyle = BorderStyle.FixedSingle;
             AssemblyTextBox.Cursor = Cursors.IBeam;
             AssemblyTextBox.Font = new Font("Cascadia Code SemiBold", 10.875F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            AssemblyTextBox.Location = new(6, 58);
+            AssemblyTextBox.Location = new Point(6, 58);
             AssemblyTextBox.Name = "AssemblyTextBox";
             AssemblyTextBox.Size = new Size(1122, 952);
             AssemblyTextBox.TabIndex = 1;
@@ -206,6 +206,15 @@
             Hardware.TabIndex = 0;
             Hardware.Text = "Hardware view";
             Hardware.UseVisualStyleBackColor = true;
+            // 
+            // RamLabel
+            // 
+            RamLabel.AutoSize = true;
+            RamLabel.Location = new Point(905, 452);
+            RamLabel.Name = "RamLabel";
+            RamLabel.Size = new Size(165, 32);
+            RamLabel.TabIndex = 5;
+            RamLabel.Text = "(click to show)";
             // 
             // ResetButton
             // 
@@ -280,15 +289,6 @@
             HowToTab.TabIndex = 4;
             HowToTab.Text = "How to use";
             HowToTab.UseVisualStyleBackColor = true;
-            // 
-            // RamLabel
-            // 
-            RamLabel.AutoSize = true;
-            RamLabel.Location = new Point(905, 452);
-            RamLabel.Name = "RamLabel";
-            RamLabel.Size = new Size(165, 32);
-            RamLabel.TabIndex = 5;
-            RamLabel.Text = "(click to show)";
             // 
             // Window
             // 

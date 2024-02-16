@@ -5,7 +5,6 @@ namespace AqaAssemEmulator_GUI
 {
     /* ToDo:
      * make a class to display Errors
-     * add syntax highlighting to editor
      * add page with instructionset
      */
 
@@ -24,6 +23,8 @@ namespace AqaAssemEmulator_GUI
         int CpuDelayInMs;
 
         TraceTable TraceTable;
+
+        AssemblerErrorDisplay AssemblerErrorDisplay;
 
         public Window()
         {
@@ -63,6 +64,9 @@ namespace AqaAssemEmulator_GUI
         {
             CpuDelayInMs = int.Parse(CPUDelayInput.Text);
             InitializeHardware();
+
+            AssemblerErrorDisplay = new AssemblerErrorDisplay();
+            AssemblerErrorDisplay.IgnoreButtonClicked += IgnoreButtonClicked;
 
             TraceTable = new TraceTable(Cpu);
             this.TraceTblTab.Controls.Add(TraceTable);
@@ -138,7 +142,7 @@ namespace AqaAssemEmulator_GUI
         }
         #endregion editor buttons
 
-        
+
 
         async void CompileAssembly(string assembly)
         {
@@ -170,31 +174,27 @@ namespace AqaAssemEmulator_GUI
             Task.WaitAll(assemble, resetRam);
             List<AssemblerError> errors = Assembler.GetCompilationErrors();
 
-            bool failedTocompile = IsFailure(errors);
-
-            if (failedTocompile)
+            if (errors.Count == 0)
             {
-                AssemblerErrorDisplay errorDisplay = new(errors);
-                errorDisplay.Show();
-
+                RAM.LoadMachineCode(Assembler.GetMachineCode());
+                UpdateSystemInfomation();
+                TraceTable.UpdateTable(Assembler.GetVariables());
                 return;
             }
 
-            //this will only be true if the code has errors but they are none fatal
-            if(errors.Count != 0)
-            {
-                Task t = Task.Run(() => {
-                    AssemblerErrorDisplay errorDisplay = new(errors);
-                    errorDisplay.Show();
-                });
-                await t;
-                return;
-            }
-
-            RAM.LoadMachineCode(Assembler.GetMachineCode());
-            UpdateSystemInfomation();
+            AssemblerErrorDisplay.SetErrors(errors);
+            AssemblerErrorDisplay.ShowDialog();
         }
 
+        void IgnoreButtonClicked(object? sender, EventArgs e)
+        {
+            RAM.LoadMachineCode(Assembler.GetMachineCode());
+            UpdateSystemInfomation();
+            TraceTable.UpdateTable(Assembler.GetVariables());
+        }
+
+       //no longer needed
+       /*x
         static bool IsFailure(List<AssemblerError> errors)
         {
             bool failedToCompile = false;
@@ -211,6 +211,7 @@ namespace AqaAssemEmulator_GUI
             }
             return failedToCompile;
         }
+        */
 
         void UpdateSystemInfomation()
         {
@@ -221,7 +222,7 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunProgram()
         {
-            //TraceTable.Clear();
+            //xTraceTable.Clear();
             try
             {
                 Cpu.halted = false;
@@ -339,13 +340,13 @@ namespace AqaAssemEmulator_GUI
         {
             /* this is a bad way to do this, it makes it a pain for the user to type in a number
              * the cursor will jump to the beginning of the string every time a character is entered
-             */ 
-           /*x
-             * CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
-             * if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
-             * CpuDelayInMs = int.Parse(CPUDelayInput.Text);
-             * Cpu.UpdateDelay(CpuDelayInMs);
-            */
+             */
+            /*x
+              * CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
+              * if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
+              * CpuDelayInMs = int.Parse(CPUDelayInput.Text);
+              * Cpu.UpdateDelay(CpuDelayInMs);
+             */
         }
 
         private void CPUDelayInput_KeyDown(object sender, KeyEventArgs e)
@@ -373,10 +374,10 @@ namespace AqaAssemEmulator_GUI
              * this is a bad way to do this, it makes it a pain for the user to type in a number
              * the cursor will jump to the beginning of the string every time a character is entered
              */
-           /*x
-             * TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
-             * if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
-             */
+            /*x
+              * TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
+              * if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
+              */
         }
 
         //x BAD!!!
@@ -384,19 +385,19 @@ namespace AqaAssemEmulator_GUI
         {   /* this was another bad idea, however this code is still useful
              * It just needs to be called from somewhere else
              */
-          /*x
-             * if (!Cpu.halted)
-             * {
-             *     MessageBox.Show("Cannot change trace table depth while CPU is running",
-             *                     "Runtime Error",
-             *                     MessageBoxButtons.OK,
-             *                     MessageBoxIcon.Error);
-             * 
-             *     TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
-             * 
-             *     return;
-             * }
-            */
+            /*x
+               * if (!Cpu.halted)
+               * {
+               *     MessageBox.Show("Cannot change trace table depth while CPU is running",
+               *                     "Runtime Error",
+               *                     MessageBoxButtons.OK,
+               *                     MessageBoxIcon.Error);
+               * 
+               *     TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
+               * 
+               *     return;
+               * }
+              */
         }
 
         private void TraceTableDepthInput_Leave(object sender, EventArgs e)
@@ -427,8 +428,5 @@ namespace AqaAssemEmulator_GUI
         }
 
         #endregion settings
-
-
-
     }
 }

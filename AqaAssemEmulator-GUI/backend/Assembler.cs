@@ -120,13 +120,22 @@ internal class Assembler
                              preProcessorInstruction);
                 }
 
-                /* ToDo handle errors if the file doesn't exist
-                   * add a setting to allow the user to specify a relative path
-                   * make file extensions optional
-                   */
+                //  done
+                //x handle errors if the file doesn't exist
 
-                string path = Path.GetFullPath(splitInstruction[1] + ".aqa");
-                string assembly = File.ReadAllText(path);
+                string path = "";
+                string assembly = "";
+                try
+                {
+                    path = Path.GetFullPath(splitInstruction[1] + ".aqa");
+                    assembly = File.ReadAllText(path);
+                }
+                catch (Exception)
+                {
+                    AddError("file not found", preProcessorInstruction);
+                    break;
+                }
+                
 
                 List<string> assemblyList = assembly.Split('\n').ToList();
                 assemblyList = assemblyList.Where(x => x != "").ToList();
@@ -467,7 +476,7 @@ internal class Assembler
 
     private void AddError(string message, string line, bool isFatal = true)
     {
-        int lineNumber = UncompiledCode.IndexOf(line);
+        int lineNumber = UncompiledCode.IndexOf(line) + 1;
         if (lineNumber == -1)
         {
             lineNumber = assemblyLineList.IndexOf(line);
