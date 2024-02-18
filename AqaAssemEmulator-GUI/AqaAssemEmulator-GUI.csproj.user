@@ -7,6 +7,9 @@
     <Compile Update="CpuInfoComponent.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="EmulatorErrorDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="ErrorDisplay.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -1,33 +1,43 @@
-using System.Reflection.Emit;
-
 namespace AqaAssemEmulator_GUI.backend;
 
 internal class Memory
 {
     private long[] memory;
+    public event EventHandler<MemoryErrorEventArgs> InvalidMemoryAccess;
+    public event EventHandler<MemoryErrorEventArgs> possibleProgramOverwrite;
 
     public Memory(int Size)
     {
         memory = new long[Size];
     }
 
-    public int Length()
+    public int GetLength()
     {
         return memory.Length;
     }
 
     public long QuereyAddress(long address)
     {
-        if (address > memory.Length)
-            throw new ArgumentException("address out of bounds");
+        if ( address < 0 || address > memory.Length) 
+        {
+            MemoryErrorEventArgs e = new($"Invalid memory address: {address}");
+            OnInvalidMemoryAccess(e);
+            return -1;
+        }
         return memory[address];
     }
 
     public void SetAddress(long address, long value)
     {
-        if (address > memory.Length) throw new ArgumentException("address out of bounds");
-        if (memory[address] != 0) Console.WriteLine("warning: overwriting memory");
-        if (memory[address] > Constants.opCodeOffset * Constants.bitsPerNibble) Console.WriteLine("warning: overwtiting what appears to be machine code");
+        if (address < 0 || address > memory.Length)
+        {
+            MemoryErrorEventArgs e = new($"Invalid memory address: {address}");
+            OnInvalidMemoryAccess(e);
+        }
+        //if (memory[address] != 0) Console.WriteLine("warning: overwriting memory");
+        //if (memory[address] > Constants.opCodeOffset * Constants.bitsPerNibble) throw new AccessViolationException("overwtiting what appears to be machine code");
+        if (memory[address] > Constants.opCodeOffset * Constants.bitsPerNibble) 
+            OnPossibleProgramOverwrite(new($"Possible program overwrite at address {address}"));
         memory[address] = value;
     }
 
@@ -55,6 +65,8 @@ internal class Memory
         }
     }
 
+
+    // awful!!! add threading if you have time
     public void Reset()
     {
         for (int i = 0; i < memory.Length; i++)
@@ -62,42 +74,16 @@ internal class Memory
             memory[i] = 0;
         }
     }
-}
 
-class Register
-{
-    private long value;
-    int DelayInMs;
-
-    public Register(int delayInMs)
+    protected virtual void OnInvalidMemoryAccess(MemoryErrorEventArgs e)
     {
-        value = 0;
-        DelayInMs = delayInMs;
+        InvalidMemoryAccess?.Invoke(this, e);
     }
 
-    public void SetRegister(long val)
+    protected virtual void OnPossibleProgramOverwrite(MemoryErrorEventArgs e)
     {
-        Thread.Sleep(DelayInMs);
-        value = val;
-    }
-
-    public long GetRegister()
-    {
-        return value;
-    }
-
-    public void Reset()
-    {
-        value = 0;
-    }
-
-    public string DumpRegister()
-    {
-        return value.ToString("X");
-    }
-
-    public void UpdateDelay(int delayInMs)
-    {
-        DelayInMs = delayInMs;
+        possibleProgramOverwrite?.Invoke(this, e);
     }
 }
+
+

@@ -1,0 +1,132 @@
+AQA assembly Emulator - made by Emily
+
+Quick start: 
+programs can be created in the editor tab. To run a program,  press "Load to RAM", then go to the hardware tab, and press run
+
+
+
+Hardware view:
+here the registers in the CPU can be seen, one additional register not present in the AQA standard is the current program status register, this stores flags about a numerical operation each time CMP is called. while the CPU is running (not halted) the CPU diagram label will turn grey.
+
+the RAM diagram can be pressed to see the data currently stored in RAM (the first few addresses will be the program information so make sure not to write over this).
+
+Run Program starts the CPU and begins executing the instructions in RAM from address 0, if there is no program currently loaded into RAM it will attempt to load from the editor.
+
+Load from file will "compile" any .aqa file and load it into RAM.
+
+Reset system will wipe all data from the CPU, RAM, and trace Table, if the CPU is running it will halt the CPU.
+
+Manual halt will halt the CPU, this is useful if you have accidentally created an infinite loop.
+
+
+
+Trace table:
+once a program is loaded, the variables used in the program will be added as columns in the trace table. 
+the trace table will update with each CPU cycle, if there aren't enough lines on the trace table for all the data, it will refresh.
+the trace table "Depth" (number of rows) can be configured in settings
+
+
+
+Editor:
+Save and Open buttons can be used to read/write .aqa files to storage.
+
+Load to RAM will "compile" the program and move it to RAM, ready to be run from the hardware tab.
+
+AQA assembly can be written in the text box on this tab.
+
+
+
+Settings:
+CPU delay (in ms) is the amount of time the CPU thread will sleep between each step of the cycle (ie a delay of 100 would look like: fetch, sleep 100, decode, sleep 100, execute, sleep 100).
+
+Trace Table Depth is the number of rows on the trace table, high values can cause lag so keep it under 300, this cannot be changed while the CPU is running.
+
+
+
+language documentation:
+All programs must have a HALT instruction in the program to "compile".
+
+unlike in the official AQA assembly, operands do not have to be separated by commas (however they still can be to maintain full parity).
+
+comments are made in the program with a semicolon.
+
+several pre-processor flags can be passed, all pre-processor flags are indicated with an asterisk.
+
+
+Preprocessor flags:
+"*EXTENDED"
+ - this enables the extended instruction set which can be found further below
+
+"*INCLUDE <path/to/someFile> <where>"
+ - this "pastes" the content of another assembly file (said file being "someFile"), <where> can either be"FIRST", to paste the file at the start, "LAST", to paste the file at the end, or "HERE" to include it where the line is
+
+
+definitions for reading the instruction set:
+"Rn" means register n (there are 13 registers being 0 up to and including 12), instructions involving multiple registers may also use "Rd" which means register d.
+
+"<opperand>" can either be a register see above, an address in memory to read from, or a number constant indicated with a hashtag (eg "#3").
+
+"<memory ref>" means memory reference, it is a pointer to an address in memory.
+
+"<label>" is a header which can be branched to, labels are 1 word and marked with a colon
+(eg:
+"somelabel:
+; do something
+B somelabel").
+
+"CPSR" is the current program status register, it is different from standard registers as instead of storing a number it stores a CPSRflag.
+
+"CPSRflag" is a flag that is stored in the current program status register, it can only be "Zero", "Negative", "Overflow" or "None"
+
+
+The standard instruction set for the AQA assembly reference language:
+"LDR Rn <memory ref>"
+ - loads the value in <memory ref> into Rn
+"STR Rn <memory ref>"
+ - stores the value of Rn into <memory ref>
+"ADD Rn Rd <opperand>" 
+ - adds the value of <opperand> to the value of Rd and stores the result in Rn
+"SUB Rn Rd <opperand>"
+ - subtracts the value of <opperand> from the value of Rd and stores the result in Rn
+"MOV Rn <opperand>"
+ - moves the value of <opperand> into Rn, MOV can be used in the same situations LDR is used in however this is considered bad practice as it is less efficient
+"CMP Rn <opperand>"
+ - compares Rn with the value of <opperand> to set the CPSR, this is done by subtracting Rn from <opperand>, if the result is 0 the CPSR is set to Zero, if it is below 0 the CPSR is set to negative, if an overflow occurs set the CPSR to Overflow
+"B <label>"
+ - branches to the given label
+"BEQ <label>" 
+- branches to the given label if the CPSR is set to Zero
+"BNE <label>"
+ - branches to the given label if the CPSR is not set to zero
+"BGT <label>"
+ - branches to the given label if the CPSR is set to Negative
+"BLT <label>"
+ - branches to the given label if the CPSR is not negative and not Zero
+"AND Rn Rd <opperand>"
+ - performs the logical operation "and" between the value of Rd and the value of <opperand>, the result is stored in Rn
+"ORR Rn Rd <opperand>"
+ - performs the logical operation "or" between the value of Rd and the value of <opperand>, the result is stored in Rn
+"EOR Rn Rd <opperand>"
+ - performs the logical operation "xor" between the value of Rd and the value of <opperand>, the result is stored in Rn
+"MVN Rn <opperand>"
+ - performs the logical operation "not" on the value stored in <opperand> and stores the result in Rn
+"LSL Rn Rd <opperand>"
+ - shifts the bits of Rd left by the value of <opperand>, storing the result in Rn
+"LSR Rn Rd <opperand>" 
+ - shifts the bits of Rd left by the value of <opperand>, storing the result in Rn
+"HALT" 
+ - stops execution of the program and halts the CPU
+
+
+The extended instruction Set (the extended pre-processor flag must be passed to use these instructions):
+"INPUT Rn" 
+ - opens a dialog box for the user to input a number, this is stored in Rn
+"OUTPUT Rn"
+ - opens a dialog box displaying the value of Rn to the user
+"DUMP <dump type>"
+ - <dump type> can be either "memory", "registers", or "all", depending on what is passed as <dump type, these are then saved as a .Dump file located in ./Dumps/
+"JMP Rn" 
+- sets the program counter to the value stored in Rn, useful for creating a call stack
+"CDP Rn" 
+ - stores the current value of the program counter in Rn, you will typically want to add 2 to this value so if you return to it with JMP you do not get stuck in a loop
+

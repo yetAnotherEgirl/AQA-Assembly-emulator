@@ -35,3 +35,6 @@ C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulato
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.MemoryGrid.resources
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.RamGrid.resources
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.InputDialog.resources
+C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.AssemblerErrorDisplay.resources
+C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.EmulatorErrorDisplay.resources
+C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.TraceTable.resources

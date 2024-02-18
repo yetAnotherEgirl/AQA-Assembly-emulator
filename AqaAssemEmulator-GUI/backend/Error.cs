@@ -47,7 +47,7 @@ namespace AqaAssemEmulator_GUI.backend
 
         public override string ToString()
         {
-            return $"Emulator error at instruction {ProgramCounter}: \n {Message}";
+            return $"{Message}";
         }
     }
 }

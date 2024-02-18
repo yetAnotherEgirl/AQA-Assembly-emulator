@@ -10,11 +10,13 @@ namespace AqaAssemEmulator_GUI
     {
         protected Button OkButton;
         protected TextBox ErrorTextBox;
+
         
         protected bool IsFatal;
         protected Button IgnoreButton;
 
         public event EventHandler IgnoreButtonClicked;
+        public event EventHandler OkButtonClicked;
 
         protected static List<T> Errors = [];
 
@@ -91,6 +93,7 @@ namespace AqaAssemEmulator_GUI
 
         protected void OkButton_Click(object? sender, EventArgs e)
         {
+            OkButtonClicked?.Invoke(this, e);
             Close();
         }
 

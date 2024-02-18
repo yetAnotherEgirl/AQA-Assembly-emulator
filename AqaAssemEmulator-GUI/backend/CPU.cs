@@ -11,36 +11,47 @@ internal class CPU
     long ALU = 0;
 
     CPSRFlags CPSR = CPSRFlags.None;
-    Register MemoryAddressRegister;
+    Register memoryAddressRegister;
     Register memoryDataRegister;
     machineCodeLine instructionRegister;
-    Register[] registers;
+    GenericRegisters registers;
 
     Memory RAM;
+
     int DelayInMs;
+
+    List<EmulatorError> Errors = [];
+    public event EventHandler<EmulatorErrorEventArgs> EmulatorErrorOccured;
 
     public CPU(ref Memory ram, int delayInMs, int registerCount)
     {
         RAM = ram;
-        registers = new Register[registerCount];
+        registers = new GenericRegisters(delayInMs, registerCount);
         DelayInMs = delayInMs;
-        for (int i = 0; i < registers.Length; i++)
-        {
-            registers[i] = new Register(DelayInMs);
-        }
-        MemoryAddressRegister = new Register(DelayInMs);
+        memoryAddressRegister = new Register(DelayInMs);
         memoryDataRegister = new Register(DelayInMs);
         instructionRegister = new machineCodeLine();
+
+        RAM.InvalidMemoryAccess += Memory_InvalidMemoryAccess;
+        RAM.possibleProgramOverwrite += Memory_PossibleProgramOverwrite;
+
+        registers.RegisterError += Registers_RegisterError;
     }
 
 
 
     public void Fetch()
     {
-        MemoryAddressRegister.SetRegister(ProgramCounter);
-        long x = RAM.QuereyAddress(MemoryAddressRegister.GetRegister());
+        memoryAddressRegister.SetRegister(ProgramCounter);
+        long x = RAM.QuereyAddress(memoryAddressRegister.GetRegister());
         memoryDataRegister.SetRegister(x);
         ProgramCounter++;
+        if(ProgramCounter >= RAM.GetLength())
+        {
+            AddError("Program counter out of bounds, ignore reset to 0", false);
+            ProgramCounter = 0;
+            
+        }
         Thread.Sleep(DelayInMs);
     }
 
@@ -67,7 +78,8 @@ internal class CPU
         switch (instructionRegister.instruction)
         {
             default:
-                throw new ArgumentException("invalid instruction passed to execute");
+                AddError("Invalid instruction");
+                break;
             case 0: //label, do nothing
                 break;
             case 1:
@@ -147,101 +159,113 @@ internal class CPU
     void LDR()
     {
         if (!(instructionRegister.AddressMode == Constants.addressIndicator))
-            throw new ArgumentException("CPU is not in address mode when reading address");
-        MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-        memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
-        registers[instructionRegister.arguments[1]].SetRegister(memoryDataRegister.GetRegister());
+            AddError("CPU is not in address mode when reading address");
+        memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+        
+        memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
+        registers.SetRegister(instructionRegister.arguments[1], memoryDataRegister.GetRegister());
+        
+            //registers[instructionRegister.arguments[1]].SetRegister(memoryDataRegister.GetRegister());
+         
     }
     void STR()
     {
         if (!(instructionRegister.AddressMode == Constants.addressIndicator))
-            throw new ArgumentException("CPU is not in address mode when writing address");
+            AddError("CPU is not in address mode when writing to address");
 
-        MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[0]].GetRegister());
-        RAM.SetAddress(MemoryAddressRegister.GetRegister(), memoryDataRegister.GetRegister());
+        memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[0]));
+        RAM.SetAddress(memoryAddressRegister.GetRegister(), memoryDataRegister.GetRegister());
     }
     void ADD()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
+
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
+
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU += memoryDataRegister.GetRegister();
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
+
     }
     void SUB()
     {
-        MemoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
-        memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+        memoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
+        memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
+
         ALU = memoryDataRegister.GetRegister();
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
+
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU -= memoryDataRegister.GetRegister();
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
+
     }
     void MOV()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
-            Console.WriteLine("MOV command used like LDR, consider using LDR instead");
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
+            AddError("MOV command used like LDR, consider using LDR instead", false);
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        registers[instructionRegister.arguments[0]].SetRegister(memoryDataRegister.GetRegister());
+        registers.SetRegister(instructionRegister.arguments[0], memoryDataRegister.GetRegister());
     }
     void CMP()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        MemoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
-        memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+        memoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
+        memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         try
         {
             ALU -= memoryDataRegister.GetRegister();
@@ -279,130 +303,130 @@ internal class CPU
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU &= memoryDataRegister.GetRegister();
 
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void ORR()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU |= memoryDataRegister.GetRegister();
 
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void EOR()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU ^= memoryDataRegister.GetRegister();
 
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void MVN()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = ~memoryDataRegister.GetRegister();
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void LSL()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU = (int)ALU << (int)memoryDataRegister.GetRegister();
 
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void LSR()
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
-            memoryDataRegister.SetRegister(registers[MemoryAddressRegister.GetRegister()].GetRegister());
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
+            memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         }
         else
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
         ALU = memoryDataRegister.GetRegister();
-        memoryDataRegister.SetRegister(registers[instructionRegister.arguments[1]].GetRegister());
+        memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
         ALU = (int)ALU >> (int)memoryDataRegister.GetRegister();
 
-        registers[instructionRegister.arguments[0]].SetRegister(ALU);
+        registers.SetRegister(instructionRegister.arguments[0], ALU);
     }
     void HALT()
     {
@@ -414,12 +438,12 @@ internal class CPU
     void INPUT()
     {
         int input = InputDialog.GetInput($"Enter a value for register {instructionRegister.arguments[0]}");
-        registers[instructionRegister.arguments[0]].SetRegister(Convert.ToInt32(input));
+        registers.SetRegister(instructionRegister.arguments[0], Convert.ToInt32(input));
     }
     void OUTPUT()
     {
         MessageBox.Show($"Register {instructionRegister.arguments[0]} contains " +
-                        $"#{registers[instructionRegister.arguments[0]].GetRegister()}",
+                        $"#{registers.GetRegister(instructionRegister.arguments[0])}",
                                    "Output",
                                    MessageBoxButtons.OK
                                    );
@@ -439,7 +463,8 @@ internal class CPU
                 RAM.DumpMemory("memory");
                 break;
             default:
-                throw new ArgumentException("invalid dump command");
+                AddError("Invalid dump type");
+                break;
         }
     }
     
@@ -447,13 +472,13 @@ internal class CPU
     {
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
-            MemoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
-            memoryDataRegister.SetRegister(RAM.QuereyAddress(MemoryAddressRegister.GetRegister()));
+            memoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
+            memoryDataRegister.SetRegister(RAM.QuereyAddress(memoryAddressRegister.GetRegister()));
             ProgramCounter = (int)memoryDataRegister.GetRegister();
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            ProgramCounter = (int)registers[instructionRegister.arguments[1]].GetRegister();
+            ProgramCounter = (int)registers.GetRegister(instructionRegister.arguments[1]);
         }
         else
         {
@@ -463,7 +488,7 @@ internal class CPU
 
     void CDP()
     {
-        registers[instructionRegister.arguments[0]].SetRegister(ProgramCounter); 
+        registers.SetRegister(instructionRegister.arguments[0], ProgramCounter); 
     }
     #endregion extended instruction set
 
@@ -473,27 +498,27 @@ internal class CPU
         ProgramCounter = 0;
         ALU = 0;
         CPSR = CPSRFlags.None;
-        MemoryAddressRegister.Reset();
+        memoryAddressRegister.Reset();
         memoryDataRegister.Reset();
-        for (int i = 0; i < registers.Length; i++)
-        {
-            registers[i].Reset();
-        }
+        registers.Reset();
     }
 
     public void DumpRegisters(string fileName, string DumpPath = "dumps")
     {
-        string[] memoryDump = new string[registers.Length + 5];
+        string[] memoryDump = new string[registers.Count + 5];
 
-        for (int i = 0; i < registers.Length; i++)
+        string[] registerDump = registers.DumpRegisters();
+
+        for (int i = 0; i < registers.Count; i++)
         {
-            memoryDump[i] = $" register {i}: {registers[i].DumpRegister()}";
+            memoryDump[i] = registerDump[i];
         }
-        memoryDump[registers.Length] = $" PC: {ProgramCounter}";
-        memoryDump[registers.Length + 1] = $" ALU: {ALU}";
-        memoryDump[registers.Length + 2] = $" MAR: {MemoryAddressRegister.DumpRegister()}";
-        memoryDump[registers.Length + 3] = $" MDR: {memoryDataRegister.DumpRegister()}";
-        memoryDump[registers.Length + 4] = $" CPSR: {CPSR}";
+        
+        memoryDump[registers.Count] = $" PC: {ProgramCounter}";
+        memoryDump[registers.Count + 1] = $" ALU: {ALU}";
+        memoryDump[registers.Count + 2] = $" MAR: {memoryAddressRegister.DumpRegister()}";
+        memoryDump[registers.Count + 3] = $" MDR: {memoryDataRegister.DumpRegister()}";
+        memoryDump[registers.Count + 4] = $" CPSR: {CPSR}";
 
         Directory.CreateDirectory($"./{DumpPath}");
         fileName = DumpPath + "/" + fileName + ".Dump";
@@ -523,7 +548,7 @@ internal class CPU
 
     public long GetMemoryAddressRegister()
     {
-        return MemoryAddressRegister.GetRegister();
+        return memoryAddressRegister.GetRegister();
     }
 
     public long GetMemoryDataRegister()
@@ -533,12 +558,17 @@ internal class CPU
 
     public long GetRegister(int register)
     {
-        return registers[register].GetRegister();
+        return registers.GetRegister(register);
     }
 
     public int GetRegisterCount()
     {
-        return registers.Length;
+        return registers.Count;
+    }
+
+    public List<EmulatorError> GetErrors()
+    {
+        return Errors;
     }
 
     #endregion getters
@@ -546,11 +576,36 @@ internal class CPU
     public void UpdateDelay(int delayInMs)
     {
         DelayInMs = delayInMs;
-        for (int i = 0; i < registers.Length; i++)
-        {
-            registers[i].UpdateDelay(delayInMs);
-        }
-        MemoryAddressRegister.UpdateDelay(delayInMs);
+        registers.UpdateDelay(delayInMs);
+        memoryAddressRegister.UpdateDelay(delayInMs);
         memoryDataRegister.UpdateDelay(delayInMs);
+    }
+
+    void AddError(string message, bool isFatal = true)
+    {
+        Errors.Add(new EmulatorError(message, ProgramCounter, isFatal));
+        if (isFatal) halted = true;
+        EmulatorErrorEventArgs e = new(Errors);
+        OnEmulatorErrorOccured(e);
+    }
+
+    private void Memory_InvalidMemoryAccess(object? sender, MemoryErrorEventArgs e)
+    {
+        AddError(e.ErrorMessage);
+    }
+
+    private void Registers_RegisterError(object? sender, MemoryErrorEventArgs e)
+    {
+        AddError(e.ErrorMessage);
+    }
+
+    private void Memory_PossibleProgramOverwrite(object? sender, MemoryErrorEventArgs e)
+    {
+        AddError(e.ErrorMessage, false);
+    }
+
+    protected virtual void OnEmulatorErrorOccured(EmulatorErrorEventArgs e)
+    {
+        EmulatorErrorOccured?.Invoke(this, e);
     }
 }

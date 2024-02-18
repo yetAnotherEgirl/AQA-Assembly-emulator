@@ -352,6 +352,12 @@ internal class Assembler
         if (registerAddress < 0) AddError("registers are all positive integers", line);
         long output = (long)registerAddress << CurrentRegisterOffset * Constants.bitsPerNibble;
 
+        if (registerAddress > 12)
+        {
+            AddError("invalid register address, the emulated CPU only" +
+                " has 13 registers (R0 up to and including R12)", line);
+        }
+
         return output;
     }
 

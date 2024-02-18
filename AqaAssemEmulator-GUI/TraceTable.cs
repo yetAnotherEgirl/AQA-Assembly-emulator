@@ -23,8 +23,9 @@ namespace AqaAssemEmulator_GUI
 
         TextBox[,] TraceTableEntries;
 
-        public TraceTable(CPU CPU, int TableDepth = 30)
+        public TraceTable(CPU CPU, ref Memory ram, int TableDepth = 30)
         {
+            RAM = ram;
             this.TableDepth = TableDepth;
             InitializeComponent(CPU);
         }
@@ -232,17 +233,15 @@ namespace AqaAssemEmulator_GUI
             }
 
 
-            foreach (TextBox dataBox in TraceTableEntries)
+            for (int y = 0; y < TraceTableEntries.GetLength(1); y++)
             {
-                if(dataBox.Text == "")
+                for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
                 {
-                    break;
+                    TraceTableEntries[x, y].Text = "";
                 }
-
-                dataBox.Text = "";
             }
             
-            UpdateTable(trackedVariables);
+            //UpdateTable(trackedVariables);
         }
 
         void Scrolldown()
@@ -254,6 +253,7 @@ namespace AqaAssemEmulator_GUI
                 headers[i] = TraceTableEntries[i, 0].Text;
             }
             Clear();
+            UpdateTable(trackedVariables);
             for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
             {
                 TraceTableEntries[i, 0].Text = headers[i];

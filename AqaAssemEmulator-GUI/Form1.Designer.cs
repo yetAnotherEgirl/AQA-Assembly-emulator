@@ -50,10 +50,12 @@
             ShowRam = new Button();
             Tabs = new TabControl();
             HowToTab = new TabPage();
+            HowToTextbox = new RichTextBox();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
             Tabs.SuspendLayout();
+            HowToTab.SuspendLayout();
             SuspendLayout();
             // 
             // SaveAssembly
@@ -282,6 +284,7 @@
             // 
             // HowToTab
             // 
+            HowToTab.Controls.Add(HowToTextbox);
             HowToTab.Location = new Point(8, 46);
             HowToTab.Name = "HowToTab";
             HowToTab.Padding = new Padding(3);
@@ -289,6 +292,15 @@
             HowToTab.TabIndex = 4;
             HowToTab.Text = "How to use";
             HowToTab.UseVisualStyleBackColor = true;
+            // 
+            // HowToTextbox
+            // 
+            HowToTextbox.Location = new Point(6, 6);
+            HowToTextbox.Name = "HowToTextbox";
+            HowToTextbox.ReadOnly = true;
+            HowToTextbox.Size = new Size(1122, 1004);
+            HowToTextbox.TabIndex = 0;
+            HowToTextbox.Text = "";
             // 
             // Window
             // 
@@ -305,6 +317,7 @@
             Hardware.ResumeLayout(false);
             Hardware.PerformLayout();
             Tabs.ResumeLayout(false);
+            HowToTab.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -331,5 +344,6 @@
         private Label TraceTableDepthLabel;
         private TabPage HowToTab;
         private Label RamLabel;
+        private static RichTextBox HowToTextbox;
     }
 }
