@@ -31,6 +31,7 @@
             SaveAssembly = new SaveFileDialog();
             OpenAssembly = new OpenFileDialog();
             Settings = new TabPage();
+            TestingModeLabel = new Label();
             TraceTableDepthInput = new RichTextBox();
             TraceTableDepthLabel = new Label();
             CPUDelayInput = new RichTextBox();
@@ -51,6 +52,7 @@
             Tabs = new TabControl();
             HowToTab = new TabPage();
             HowToTextbox = new RichTextBox();
+            TestingModeCheckBox = new CheckBox();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
@@ -70,6 +72,8 @@
             // 
             // Settings
             // 
+            Settings.Controls.Add(TestingModeCheckBox);
+            Settings.Controls.Add(TestingModeLabel);
             Settings.Controls.Add(TraceTableDepthInput);
             Settings.Controls.Add(TraceTableDepthLabel);
             Settings.Controls.Add(CPUDelayInput);
@@ -81,6 +85,15 @@
             Settings.TabIndex = 3;
             Settings.Text = "Settings";
             Settings.UseVisualStyleBackColor = true;
+            // 
+            // TestingModeLabel
+            // 
+            TestingModeLabel.AutoSize = true;
+            TestingModeLabel.Location = new Point(6, 99);
+            TestingModeLabel.Name = "TestingModeLabel";
+            TestingModeLabel.Size = new Size(160, 32);
+            TestingModeLabel.TabIndex = 4;
+            TestingModeLabel.Text = "Testing Mode";
             // 
             // TraceTableDepthInput
             // 
@@ -101,9 +114,9 @@
             TraceTableDepthLabel.AutoSize = true;
             TraceTableDepthLabel.Location = new Point(6, 55);
             TraceTableDepthLabel.Name = "TraceTableDepthLabel";
-            TraceTableDepthLabel.Size = new Size(204, 32);
+            TraceTableDepthLabel.Size = new Size(258, 32);
             TraceTableDepthLabel.TabIndex = 2;
-            TraceTableDepthLabel.Text = "Trace Table Depth";
+            TraceTableDepthLabel.Text = "Trace Table Depth Step";
             // 
             // CPUDelayInput
             // 
@@ -171,7 +184,7 @@
             AssemblyTextBox.Name = "AssemblyTextBox";
             AssemblyTextBox.Size = new Size(1122, 952);
             AssemblyTextBox.TabIndex = 1;
-            AssemblyTextBox.Text = "";
+            AssemblyTextBox.Text = "; program your assembly here";
             // 
             // SaveButton
             // 
@@ -281,6 +294,7 @@
             Tabs.SelectedIndex = 0;
             Tabs.Size = new Size(1150, 1070);
             Tabs.TabIndex = 0;
+            Tabs.SelectedIndexChanged += Tabs_TabIndexChanged;
             // 
             // HowToTab
             // 
@@ -301,6 +315,15 @@
             HowToTextbox.Size = new Size(1122, 1004);
             HowToTextbox.TabIndex = 0;
             HowToTextbox.Text = "";
+            // 
+            // TestingModeCheckBox
+            // 
+            TestingModeCheckBox.AutoSize = true;
+            TestingModeCheckBox.Location = new Point(565, 101);
+            TestingModeCheckBox.Name = "TestingModeCheckBox";
+            TestingModeCheckBox.Size = new Size(28, 27);
+            TestingModeCheckBox.TabIndex = 5;
+            TestingModeCheckBox.UseVisualStyleBackColor = true;
             // 
             // Window
             // 
@@ -344,6 +367,8 @@
         private Label TraceTableDepthLabel;
         private TabPage HowToTab;
         private Label RamLabel;
-        private static RichTextBox HowToTextbox;
+        private RichTextBox HowToTextbox;
+        private Label TestingModeLabel;
+        private CheckBox TestingModeCheckBox;
     }
 }

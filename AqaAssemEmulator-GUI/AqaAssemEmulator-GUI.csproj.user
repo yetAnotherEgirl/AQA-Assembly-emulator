@@ -4,6 +4,9 @@
     <Compile Update="AssemblerErrorDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="testingModePopout.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="CpuInfoComponent.cs">
       <SubType>UserControl</SubType>
     </Compile>

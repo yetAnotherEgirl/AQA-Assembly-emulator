@@ -61,10 +61,13 @@ internal class Assembler
 
         if (Array.IndexOf(assemblyLineList.ToArray(), "HALT") == -1)
         {
-            // pass an empty string for the line parameter as the error is the line is missing
-            Errors.Add(new("HALT instruction missing", AssemblerError.NoLineNumber, true));
+            assemblyLineList.Add("HALT");
+            Errors.Add(new("HALT instruction missing, assuming halt at end of assembly", 
+                AssemblerError.NoLineNumber, false));
         }
 
+        //remove leading and trailing whitespace
+        assemblyLineList = assemblyLineList.Select(x => x.TrimEnd()).ToList();
 
         foreach (string assemblyLine in assemblyLineList)
         {

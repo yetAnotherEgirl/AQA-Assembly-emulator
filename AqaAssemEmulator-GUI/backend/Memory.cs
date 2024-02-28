@@ -65,6 +65,24 @@ internal class Memory
         }
     }
 
+    public bool IsEmpty
+    {
+        get
+        {
+            bool isEmpty = true;
+            foreach (long value in memory)
+            {
+                if (value != 0)
+                {
+                    isEmpty = false;
+                    break;
+                }
+            }
+
+            return isEmpty;
+        }
+    }
+
 
     // awful!!! add threading if you have time
     public void Reset()

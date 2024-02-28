@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace AqaAssemEmulator_GUI
 {
+    //! 
 
     public partial class Window : Form
     {
@@ -24,10 +25,9 @@ namespace AqaAssemEmulator_GUI
         AssemblerErrorDisplay assemblerErrorDisplay;
         EmulatorErrorDisplay emulatorErrorDisplay;
 
+        readonly TestingModePopout testingModePopout = new();
+
         static ManualResetEventSlim ErrorRecieved = new(false);
-
-
-
 
         public Window()
         {
@@ -79,10 +79,12 @@ namespace AqaAssemEmulator_GUI
 
             TraceTable = new TraceTable(Cpu, ref RAM);
             this.TraceTblTab.Controls.Add(TraceTable);
-            TraceTableDepthInput.Text = 30.ToString();
+            TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
             TraceTableDepthInput_Enter(sender, e);
             TraceTable.Show();
             CpuInfo.Show();
+
+            TestingModeCheckBox.CheckedChanged += TestingModeCheckBox_CheckedChanged;
 
         }
 
@@ -180,6 +182,7 @@ namespace AqaAssemEmulator_GUI
                      throw;
                  }
               */
+            testingModePopout.UpdateAssembly(AssemblyTextBox.Lines);
             Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
             Task resetRam = Task.Run(() => RAM.Reset());
             Task.WaitAll(assemble, resetRam);
@@ -213,7 +216,7 @@ namespace AqaAssemEmulator_GUI
 
         void EmulatorIgnoreButtonClicked(object? sender, EventArgs e)
         {
-             ErrorRecieved = new(false);
+            ErrorRecieved = new(false);
         }
 
         void EmulatorOkButtonClicked(object? sender, EventArgs e)
@@ -251,8 +254,7 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunProgram()
         {
-            //xTraceTable.Clear();
-            
+            TraceTable.UpdateTable(Assembler.GetVariables());
             Cpu.halted = false;
             CpuInfo.UpdateRegisters();
             while (Cpu.halted == false)
@@ -266,7 +268,8 @@ namespace AqaAssemEmulator_GUI
                     return;
                 }
 
-                await Task.Run(() => {
+                await Task.Run(() =>
+                {
                     if (!ErrorRecieved.IsSet)
                         Cpu.Fetch();
                 });
@@ -290,8 +293,9 @@ namespace AqaAssemEmulator_GUI
 
                 TraceTable.UpdateTable(Assembler.GetVariables());
             }
-            
+
             UpdateSystemInfomation();
+            TraceTable.RemoveExtraLines();
         }
 
         private void CPU_EmulatorErrorOccurred(object? sender, EmulatorErrorEventArgs e)
@@ -309,7 +313,9 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunButton_Click(object sender, EventArgs e)
         {
-            if (RAM.QuereyAddress(0) == (long)0)
+           
+
+            if (RAM.IsEmpty)
             {
                 if (AssemblyTextBox.Text != "")
                 {
@@ -339,14 +345,14 @@ namespace AqaAssemEmulator_GUI
                                 MessageBoxIcon.Error);
                 return;
             }
-
+            if (RAM.IsEmpty) return;
             Cpu.Reset();
             RunProgram();
         }
 
         private void LoadFileButton_Click(object sender, EventArgs e)
         {
-            if(Cpu.halted == false)
+            if (Cpu.halted == false)
             {
                 MessageBox.Show("Cannot load from file while CPU is running",
                                 "Runtime Error",
@@ -363,7 +369,9 @@ namespace AqaAssemEmulator_GUI
             if (OpenAssembly.FileName != "")
             {
                 string assembly = File.ReadAllText(OpenAssembly.FileName);
-
+                testingModePopout.UpdateAssembly(assembly.Split('\n'));
+                AssemblyTextBox.Text = assembly;
+                if(TraceTable.TestingMode) testingModePopout.Show();
                 CompileAssembly(assembly);
 
             }
@@ -377,18 +385,49 @@ namespace AqaAssemEmulator_GUI
 
         private async void ResetButton_Click(object sender, EventArgs e)
         {
-            Task ResetCpuTask = Task.Run(() => Cpu.Reset());
-            Task ResetRamTask = Task.Run(() => RAM.Reset());
+            Task ResetCpuTask = Task.Run(Cpu.Reset);
+            Task ResetRamTask = Task.Run(RAM.Reset);
             TraceTable.Clear();
             ErrorRecieved = new(false);
             Task.WaitAll(ResetCpuTask, ResetRamTask);
 
             UpdateSystemInfomation();
             TraceTable.Clear();
+             
         }
         #endregion hardware buttons
 
         #region settings
+        private void TestingModeCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Cpu.halted == false)
+            {
+                MessageBox.Show("Cannot change testing mode while CPU is running",
+                                "Runtime Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                TestingModeCheckBox.Checked = !TestingModeCheckBox.Checked;
+                return;
+            }
+
+            TraceTable.TestingMode = TestingModeCheckBox.Checked;
+            if (Assembler.GetVariables().Count != 0)
+            {
+                TraceTable.UpdateTable(Assembler.GetVariables());
+            }
+
+            if (TestingModeCheckBox.Checked)
+            {
+                testingModePopout.Show();
+                testingModePopout.UpdateAssembly(AssemblyTextBox.Lines);
+            }
+            else
+            {
+                testingModePopout.Hide();
+            }
+        }
+
+
         private void CPUDelayInput_TextChanged(object sender, EventArgs e)
         {
             /* this is a bad way to do this, it makes it a pain for the user to type in a number
@@ -481,8 +520,24 @@ namespace AqaAssemEmulator_GUI
         }
 
         #endregion settings
-    
-        static void PopulateHowToTextbox()
+
+        void Tabs_TabIndexChanged(object? sender, EventArgs e)
+        {
+            if (Tabs.SelectedTab == Editor)
+            {
+                testingModePopout.Hide();
+            }
+            else
+            {
+                if(TraceTable.TestingMode)
+                {
+                    testingModePopout.Show();
+                    testingModePopout.UpdateAssembly(AssemblyTextBox.Lines);
+                }
+            }
+        }
+
+        void PopulateHowToTextbox()
         {
             Font title = new("Arial", 20);
             Font header = new("Arial", 16);
@@ -530,8 +585,8 @@ namespace AqaAssemEmulator_GUI
             HowToTextbox.AppendText("CPU delay (in ms) is the amount of time the CPU thread will sleep between " +
                 "each step of the cycle (ie a delay of 100 would look like: fetch, sleep 100, decode, " +
                 "sleep 100, execute, sleep 100).\r\n\r\n" +
-                "Trace Table Depth is the number of rows on the trace table, high values can cause lag so keep " +
-                "it under 300, this cannot be changed while the CPU is running.\r\n\r\n\r\n\r\n");
+                "Trace Table Depth Step is the number of rows the trace table will add each time it fills up, " +
+                "low values will cause lag so keep this over 30, this cannot be changed while the CPU is running.\r\n\r\n\r\n\r\n");
             HowToTextbox.SelectionFont = header;
             HowToTextbox.AppendText("language documentation:\r\n");
             HowToTextbox.SelectionFont = body;
@@ -602,6 +657,8 @@ namespace AqaAssemEmulator_GUI
                 "useful for creating a call stack\r\n\"CDP Rn\" \r\n - stores the current value of the program " +
                 "counter in Rn, you will typically want to add 2 to this value so if you return to it with JMP " +
                 "you do not get stuck in a loop");
-            }
+        }
+
+        
     }
 }
