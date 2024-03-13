@@ -143,7 +143,7 @@ namespace AqaAssemEmulator_GUI
         private List<string> GetSpecificRegisters()
         {
             /* due to the way the Assembler generates the list of variables, the first 5 
-             * variables will always be "PC", "MAR", "MDR", "ALU", and "CPSR" therefore we
+             * variables will always be "PC", "MAR", "MDR", "ACC", and "CPSR" therefore we
              * can assume that the first data in the row will always be in this order
              * (and therefore we dont need to consider which register is 
              * which or what order to add the variables)
@@ -151,10 +151,10 @@ namespace AqaAssemEmulator_GUI
             string PC = CPU.GetProgramCounter().ToString();
             string MAR = CPU.GetMemoryAddressRegister().ToString();
             string MDR = CPU.GetMemoryDataRegister().ToString();
-            string ALU = CPU.GetALU().ToString();
+            string ACC = CPU.GetACC().ToString();
             string CPSR = CPU.GetCPSR().ToString();
 
-            List<string> SpecificRegisters = [PC, MAR, MDR, ALU, CPSR];
+            List<string> SpecificRegisters = [PC, MAR, MDR, ACC, CPSR];
 
             return SpecificRegisters;
         }

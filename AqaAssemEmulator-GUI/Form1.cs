@@ -247,6 +247,7 @@ namespace AqaAssemEmulator_GUI
 
         void UpdateSystemInfomation()
         {
+            if (ErrorRecieved.IsSet) return;
             CpuInfo.UpdateRegisters();
             RamGrid.UpdateGrid();
         }

@@ -17,7 +17,7 @@ namespace AqaAssemEmulator_GUI
         RichTextBox ProgramCounter;
         RichTextBox MemoryAddressRegister;
         RichTextBox MemoryDataRegister;
-        RichTextBox ArithmaticLogicUnit;
+        RichTextBox Accumulator;
         RichTextBox CPSRflag;
 
         RichTextBox[] GeneralRegisters;
@@ -120,20 +120,20 @@ namespace AqaAssemEmulator_GUI
             #endregion define MemoryDataRegister
 
             #region define ArithmaticLogicUnit
-            ArithmaticLogicUnit = new RichTextBox();
-            Point ArithmaticLogicUnitLocation = new Point(padding, 200);
+            Accumulator = new RichTextBox();
+            Point AccumulatorLocation = new Point(padding, 200);
             Size ArithmaticLogicUnitSize = new Size(200, 40);
 
-            ArithmaticLogicUnit.Location = ArithmaticLogicUnitLocation;
-            ArithmaticLogicUnit.Size = ArithmaticLogicUnitSize;
-            ArithmaticLogicUnit.Text = "ALU: " + Cpu.GetALU().ToString();
-            ArithmaticLogicUnit.ReadOnly = true;
-            ArithmaticLogicUnit.Font = new Font("Segoe UI", 10, FontStyle.Regular);
-            ArithmaticLogicUnit.BackColor = Color.White;
-            ArithmaticLogicUnit.ScrollBars = RichTextBoxScrollBars.None;
-            ArithmaticLogicUnit.BorderStyle = BorderStyle.FixedSingle;
+            Accumulator.Location = AccumulatorLocation;
+            Accumulator.Size = ArithmaticLogicUnitSize;
+            Accumulator.Text = "ACC: " + Cpu.GetACC().ToString();
+            Accumulator.ReadOnly = true;
+            Accumulator.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            Accumulator.BackColor = Color.White;
+            Accumulator.ScrollBars = RichTextBoxScrollBars.None;
+            Accumulator.BorderStyle = BorderStyle.FixedSingle;
 
-            this.Controls.Add(ArithmaticLogicUnit);
+            this.Controls.Add(Accumulator);
             #endregion define ArithmaticLogicUnit
 
             #region define MDR to ALU arrow
@@ -204,7 +204,7 @@ namespace AqaAssemEmulator_GUI
             ProgramCounter.Text = "PC: " + Cpu.GetProgramCounter().ToString();
             MemoryAddressRegister.Text = "MAR: " + Cpu.GetMemoryAddressRegister().ToString();
             MemoryDataRegister.Text = "MDR: " + Cpu.GetMemoryDataRegister().ToString();
-            ArithmaticLogicUnit.Text = "ALU: " + Cpu.GetALU().ToString();
+            Accumulator.Text = "ACC: " + Cpu.GetACC().ToString();
             CPSRflag.Text = "flags: " + Cpu.GetCPSR().ToString();
             for (int i = 0; i < Cpu.GetRegisterCount(); i++)
             {

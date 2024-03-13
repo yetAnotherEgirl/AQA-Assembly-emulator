@@ -1,14 +1,16 @@
 using System.Windows.Forms;
 
 namespace AqaAssemEmulator_GUI.backend;
-
+/*
+ * Possibly add instructionRegister to error message
+ */
 internal class CPU
 {
     public bool halted = true;
 
     int ProgramCounter = 0;
 
-    long ALU = 0;
+    long Accumulator = 0;
 
     CPSRFlags CPSR = CPSRFlags.None;
     Register memoryAddressRegister;
@@ -33,7 +35,7 @@ internal class CPU
         instructionRegister = new machineCodeLine();
 
         RAM.InvalidMemoryAccess += Memory_InvalidMemoryAccess;
-        RAM.possibleProgramOverwrite += Memory_PossibleProgramOverwrite;
+        RAM.PossibleProgramOverwrite += Memory_PossibleProgramOverwrite;
 
         registers.RegisterError += Registers_RegisterError;
     }
@@ -57,14 +59,14 @@ internal class CPU
 
     public void Decode()
     {
-        instructionRegister = new machineCodeLine();
+        instructionRegister = new();
         instructionRegister.instruction = (int)(memoryDataRegister.GetRegister() >> Constants.opCodeOffset * Constants.bitsPerNibble);
 
         int registerValues = (int)(memoryDataRegister.GetRegister() >> Constants.registerOffset * Constants.bitsPerNibble);
         registerValues &= 0xFF;
 
         instructionRegister.arguments.Add(registerValues & 0x0F);
-        instructionRegister.arguments.Add(registerValues & 0xF0);
+        instructionRegister.arguments.Add((registerValues & 0xF0) >> 1 * Constants.bitsPerNibble);
 
         int signBit = (int)(memoryDataRegister.GetRegister() >> Constants.signBitOffset * Constants.bitsPerNibble) & 0xF;
         instructionRegister.AddressMode = signBit;
@@ -196,11 +198,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU += memoryDataRegister.GetRegister();
+        Accumulator += memoryDataRegister.GetRegister();
         
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
 
     }
     void SUB()
@@ -208,7 +210,7 @@ internal class CPU
         memoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
         memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
 
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         if (instructionRegister.AddressMode == Constants.addressIndicator)
         {
             memoryAddressRegister.SetRegister(instructionRegister.arguments[2]);
@@ -224,8 +226,8 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU -= memoryDataRegister.GetRegister();
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        Accumulator -= memoryDataRegister.GetRegister();
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
 
     }
     void MOV()
@@ -263,21 +265,21 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
-        memoryAddressRegister.SetRegister(instructionRegister.arguments[1]);
+        Accumulator = memoryDataRegister.GetRegister();
+        memoryAddressRegister.SetRegister(instructionRegister.arguments[0]);
         memoryDataRegister.SetRegister(registers.GetRegister(memoryAddressRegister.GetRegister()));
         try
         {
-            ALU -= memoryDataRegister.GetRegister();
+            Accumulator -= memoryDataRegister.GetRegister();
         }
         catch (OverflowException)
         {
             CPSR = CPSRFlags.Overflow;
-            ALU += 1 << 32;
-            ALU -= memoryDataRegister.GetRegister();
+            Accumulator += 1 << 32;
+            Accumulator -= memoryDataRegister.GetRegister();
         }
-        if (ALU == 0) CPSR = CPSRFlags.Zero;
-        if (ALU < 0) CPSR = CPSRFlags.Negative;
+        if (Accumulator == 0) CPSR = CPSRFlags.Zero;
+        if (Accumulator < 0) CPSR = CPSRFlags.Negative;
     }
     void B()
     {
@@ -315,11 +317,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU &= memoryDataRegister.GetRegister();
+        Accumulator &= memoryDataRegister.GetRegister();
 
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void ORR()
     {
@@ -337,11 +339,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU |= memoryDataRegister.GetRegister();
+        Accumulator |= memoryDataRegister.GetRegister();
 
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void EOR()
     {
@@ -359,11 +361,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU ^= memoryDataRegister.GetRegister();
+        Accumulator ^= memoryDataRegister.GetRegister();
 
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void MVN()
     {
@@ -381,8 +383,8 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = ~memoryDataRegister.GetRegister();
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        Accumulator = ~memoryDataRegister.GetRegister();
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void LSL()
     {
@@ -400,11 +402,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU = (int)ALU << (int)memoryDataRegister.GetRegister();
+        Accumulator = (int)Accumulator << (int)memoryDataRegister.GetRegister();
 
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void LSR()
     {
@@ -422,11 +424,11 @@ internal class CPU
         {
             memoryDataRegister.SetRegister(instructionRegister.arguments[2]);
         }
-        ALU = memoryDataRegister.GetRegister();
+        Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        ALU = (int)ALU >> (int)memoryDataRegister.GetRegister();
+        Accumulator = (int)Accumulator >> (int)memoryDataRegister.GetRegister();
 
-        registers.SetRegister(instructionRegister.arguments[0], ALU);
+        registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
     void HALT()
     {
@@ -478,7 +480,7 @@ internal class CPU
         }
         else if (instructionRegister.AddressMode == Constants.registerIndicator)
         {
-            ProgramCounter = (int)registers.GetRegister(instructionRegister.arguments[1]);
+            ProgramCounter = (int)registers.GetRegister(instructionRegister.arguments[2]);
         }
         else
         {
@@ -496,7 +498,7 @@ internal class CPU
     {
         halted = true;
         ProgramCounter = 0;
-        ALU = 0;
+        Accumulator = 0;
         CPSR = CPSRFlags.None;
         memoryAddressRegister.Reset();
         memoryDataRegister.Reset();
@@ -515,7 +517,7 @@ internal class CPU
         }
         
         memoryDump[registers.Count] = $" PC: {ProgramCounter}";
-        memoryDump[registers.Count + 1] = $" ALU: {ALU}";
+        memoryDump[registers.Count + 1] = $" ALU: {Accumulator}";
         memoryDump[registers.Count + 2] = $" MAR: {memoryAddressRegister.DumpRegister()}";
         memoryDump[registers.Count + 3] = $" MDR: {memoryDataRegister.DumpRegister()}";
         memoryDump[registers.Count + 4] = $" CPSR: {CPSR}";
@@ -531,9 +533,9 @@ internal class CPU
         return ProgramCounter; 
     }
 
-    public long GetALU()
+    public long GetACC()
     {
-        return ALU;
+        return Accumulator;
     }
 
     public int GetDelayInMs()
@@ -558,6 +560,11 @@ internal class CPU
 
     public long GetRegister(int register)
     {
+        if (register > GetRegisterCount())
+        {
+            AddError("Register out of bounds");
+            return 0;
+        }
         return registers.GetRegister(register);
     }
 

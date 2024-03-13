@@ -39,8 +39,6 @@ internal class Assembler
 
     List<string> assemblyLineList = [];
 
-    int LineNumber = 0;
-
     List<AssemblerError> Errors = [];
 
     public Assembler()
@@ -98,6 +96,16 @@ internal class Assembler
 
     public void PreProcessAssembly(ref List<string> assemblyLineList)
     {
+        for (int i = 0; i < assemblyLineList.Count; i++)
+        {
+            string assemblyLine = assemblyLineList[i];
+
+            int commentStart = assemblyLine.IndexOf(Constants.commentChar);
+            if (commentStart != -1) assemblyLine = assemblyLine.Substring(0, commentStart);
+
+            assemblyLineList[i] = assemblyLine;
+        }
+
         List<string> preProcessorList = assemblyLineList.Where(x => x.Contains(Constants.preProcessorIndicator)).ToList();
         foreach (string preProcessorInstruction in preProcessorList)
         {
@@ -121,6 +129,7 @@ internal class Assembler
                     AddError("invalid INCLUDE instruction, " +
                              "'*INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'",
                              preProcessorInstruction);
+                    break;
                 }
 
                 //  done
@@ -167,19 +176,25 @@ internal class Assembler
         }
 
         assemblyLineList = assemblyLineList.Where(x => !x.Contains(Constants.preProcessorIndicator)).ToList();
+
+        //it is necessary to do a second pass to remove comments that may have been added by the preprocessor from included files
+        for (int i = 0; i < assemblyLineList.Count; i++)
+        {
+            string assemblyLine = assemblyLineList[i];
+
+            int commentStart = assemblyLine.IndexOf(Constants.commentChar);
+            if (commentStart != -1) assemblyLine = assemblyLine.Substring(0, commentStart);
+
+            assemblyLineList[i] = assemblyLine;
+        }
     }
 
     public long CompileAssemblyLine(ref List<string> assemblyLineList, string assemblyLine)
     {
-        LineNumber++;
-        if (string.IsNullOrEmpty(assemblyLine)) throw new ArgumentException("empty string passed to assembleLine");
-
+        //LineNumber++;
+        //if (string.IsNullOrEmpty(assemblyLine)) throw new ArgumentException("empty string passed to assembleLine");
         assemblyLine = assemblyLine.Replace(",", "");
 
-        {
-            int commentStart = assemblyLine.IndexOf(Constants.commentChar);
-            if (commentStart != -1) assemblyLine = assemblyLine.Substring(0, commentStart);
-        }
         if (string.IsNullOrEmpty(assemblyLine)) return 0;
         string[] splitLine = assemblyLine.Split(' ');
         if (Array.IndexOf(splitLine, "") != -1) splitLine = splitLine.Where(x => x != "").ToArray();
@@ -200,24 +215,29 @@ internal class Assembler
                 if (colonIndex == -1) AddError(errorText, assemblyLine);
                 break;
             case 1: //LDR
+                if (splitLine.Length != 3) { AddError("LDR takes 2 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleMemoryReference(splitLine[2], assemblyLine);
                 break;
             case 2: //STR
+                if (splitLine.Length != 3) { AddError("STR takes 2 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleMemoryReference(splitLine[2], assemblyLine);
                 break;
             case 3: //ADD
+                if (splitLine.Length != 4) { AddError("ADD takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 4: //SUB
+                if (splitLine.Length != 4) { AddError("SUB takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 5: //MOV
+                if (splitLine.Length != 3) { AddError("MOV takes 2 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleOpperand(splitLine[2], assemblyLine);
                 char[] opperand = splitLine[2].ToCharArray();
@@ -227,68 +247,86 @@ internal class Assembler
                 }
                 break;
             case 6: //CMP
+                if (splitLine.Length != 3) { AddError("CMP takes 2 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleOpperand(splitLine[2], assemblyLine);
                 break;
             case 7: //B
+                if (splitLine.Length != 2) { AddError("B takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 8: //BEQ
+                if (splitLine.Length != 2) { AddError("BEQ takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 9: //BNE
+                if (splitLine.Length != 2) { AddError("BNE takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 10: //BGT
+                if (splitLine.Length != 2) { AddError("BGT takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 11: //BLT
+                if (splitLine.Length != 2) { AddError("BLT takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
                 break;
             case 12: //AND
+                if (splitLine.Length != 4) { AddError("AND takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 13: //ORR
+                if (splitLine.Length != 4) { AddError("ORR takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 14: //EOR
+                if (splitLine.Length != 4) { AddError("EOR takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 15: //MVN
+                if (splitLine.Length != 3) { AddError("MVN takes 2 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleOpperand(splitLine[2], assemblyLine);
                 break;
             case 16: //LSL
+                if (splitLine.Length != 4) { AddError("LSL takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 17: //LSR
+                if (splitLine.Length != 4) { AddError("LSR takes 3 arguments", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 output += AssembleRegister(splitLine[2], assemblyLine, 1);
                 output += AssembleOpperand(splitLine[3], assemblyLine);
                 break;
             case 18: //HALT
+                if (splitLine.Length != 1) { AddError("HALT takes no arguments", assemblyLine); break; }
                 break;
-            case 19: //INPUT    
+            case 19: //INPUT
+                if (splitLine.Length != 2) { AddError("INPUT takes 1 argument", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine) + 1;
                 break;
             case 20: //OUTPUT
+                if (splitLine.Length != 2) { AddError("OUTPUT takes 1 argument", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine) + 1;
                 break;
             case 21: //DUMP
+                if (splitLine.Length != 2) { AddError("DUMP takes 1 argument", assemblyLine); break; }
                 output += AssembleDumpMode(splitLine[1], assemblyLine);
                 break;
             case 22: //JMP
+                if (splitLine.Length != 2) { AddError("JMP takes 1 argument", assemblyLine); break; }
                 output += AssembleOpperand(splitLine[1], assemblyLine);
                 break;
             case 23: //CDP
+                if (splitLine.Length != 2) { AddError("CDP takes 1 argument", assemblyLine); break; }
                 output += AssembleRegister(splitLine[1], assemblyLine);
                 break;
 

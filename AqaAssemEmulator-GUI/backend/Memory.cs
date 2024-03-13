@@ -4,7 +4,7 @@ internal class Memory
 {
     private long[] memory;
     public event EventHandler<MemoryErrorEventArgs> InvalidMemoryAccess;
-    public event EventHandler<MemoryErrorEventArgs> possibleProgramOverwrite;
+    public event EventHandler<MemoryErrorEventArgs> PossibleProgramOverwrite;
 
     public Memory(int Size)
     {
@@ -100,7 +100,7 @@ internal class Memory
 
     protected virtual void OnPossibleProgramOverwrite(MemoryErrorEventArgs e)
     {
-        possibleProgramOverwrite?.Invoke(this, e);
+        PossibleProgramOverwrite?.Invoke(this, e);
     }
 }
 
