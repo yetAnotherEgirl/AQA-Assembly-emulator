@@ -73,10 +73,10 @@ internal class Assembler
         }
 
         Variables = Variables.Distinct().ToList();
-        List<string> SpecificRegisterVariables = ["PC", "MAR", "MDR", "ALU", "CPSR"];
+        List<string> SpecificRegisterVariables = ["PC", "MAR", "MDR", "ACC", "CPSR"];
         SpecificRegisterVariables.AddRange(Variables);
         Variables = SpecificRegisterVariables;
-        Variables = Variables.Where(x => !x.Contains('#')).ToList();
+        Variables = Variables.Where(x => !x.Contains(Constants.decimalChar)).ToList();
 
         bool failedToCompile = false;
         foreach (AssemblerError error in Errors)
@@ -96,6 +96,7 @@ internal class Assembler
 
     public void PreProcessAssembly(ref List<string> assemblyLineList)
     {
+        //remove comments
         for (int i = 0; i < assemblyLineList.Count; i++)
         {
             string assemblyLine = assemblyLineList[i];
@@ -109,7 +110,7 @@ internal class Assembler
         List<string> preProcessorList = assemblyLineList.Where(x => x.Contains(Constants.preProcessorIndicator)).ToList();
         foreach (string preProcessorInstruction in preProcessorList)
         {
-            string instruction = preProcessorInstruction.Substring(1);
+            string instruction = preProcessorInstruction[1..];
             string[] splitInstruction = instruction.Split(' ');
             if (Array.IndexOf(splitInstruction, "") != -1) splitInstruction = splitInstruction.Where(x => x != "").ToArray();
 
@@ -118,6 +119,7 @@ internal class Assembler
                 if (splitInstruction.Length != 1)
                 {
                     AddError("invalid EXTENDED instruction, *EXTENDED takes no arguments", preProcessorInstruction);
+                    break;
                 };
                 extendedInstructionSetEnabled = true;
             }
@@ -132,8 +134,8 @@ internal class Assembler
                     break;
                 }
 
-                //  done
-                //x handle errors if the file doesn't exist
+                
+                //x handle errors if the file doesn't exist <-- Done
 
                 string path = "";
                 string assembly = "";
