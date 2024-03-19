@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AqaAssemEmulator-GUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+727ccd595c3b73b0d9d8d798ad0425e49e11e3aa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+464fd1a7c48d97ba688df81c4bbba3a1b182daa7")]
 [assembly: System.Reflection.AssemblyProductAttribute("AqaAssemEmulator-GUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AqaAssemEmulator-GUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

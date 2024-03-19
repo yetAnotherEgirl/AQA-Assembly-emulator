@@ -18,7 +18,6 @@ C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulato
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\bin\Debug\net8.0-windows\AqaAssemEmulator-GUI.deps.json
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\bin\Debug\net8.0-windows\AqaAssemEmulator-GUI.runtimeconfig.json
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\bin\Debug\net8.0-windows\AqaAssemEmulator-GUI.dll
-C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\bin\Debug\net8.0-windows\AqaAssemEmulator-GUI.pdb
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.csproj.GenerateResource.cache
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.AssemblyInfoInputs.cache
@@ -27,7 +26,6 @@ C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulato
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.sourcelink.json
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.dll
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\refint\AqaAssemEmulator-GUI.dll
-C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.pdb
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator-GUI.genruntimeconfig.cache
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\ref\AqaAssemEmulator-GUI.dll
 C:\Users\emmy\source\repos\AqaAssemEmulator-GUI\AssemEmulatorGUI\AqaAssemEmulator-GUI\obj\Debug\net8.0-windows\AqaAssemEmulator_GUI.window.resources
