@@ -5,6 +5,14 @@ namespace AqaAssemEmulator_GUI.backend;
 
 internal class Assembler
 {
+    // this number is caused by the fact Array.IndexOf returns -1 if the element is not found, however
+    // we are converting this to a long, for some reason this results in the number 576460752303423487
+    // this is the hexadecimal equivalent of 0x7FFFFFFFFFFFFFFF indicating the sign bit is being
+    // incorrectly read as a 1
+    private const long INVALID_LABEL_LOCATION = 576460752303423487;
+
+    
+    private const int INVALID_OPCODE = -1;
 
     public static string[] instructionSet =
     ["LDR",
@@ -48,6 +56,7 @@ internal class Assembler
 
     public void AssembleFromString(string assembly)
     {
+        extendedInstructionSetEnabled = false;
         Errors.Clear();
         machineCode.Clear();
         Variables.Clear();
@@ -189,6 +198,8 @@ internal class Assembler
 
             assemblyLineList[i] = assemblyLine;
         }
+
+        assemblyLineList = assemblyLineList.Where(x => x != "").ToList();
     }
 
     public long CompileAssemblyLine(ref List<string> assemblyLineList, string assemblyLine)
@@ -210,6 +221,10 @@ internal class Assembler
         {
             default:
                 throw new ArgumentException("invalid operation");
+            case INVALID_OPCODE:
+                // a case of -1 indicates that the operation is invalid, so we return 0. as the error is fatal
+                // it doesn't matter what the output is, as it will be cleared later
+                return 0;
             case 0: //label
                 const string errorText = "invalid label, labels must be 1 word and are followed by a colon";
                 if (splitLine.Length > 1) AddError(errorText, assemblyLine);
@@ -256,22 +271,27 @@ internal class Assembler
             case 7: //B
                 if (splitLine.Length != 2) { AddError("B takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
+                if (output == -1) AddError("invalid label", assemblyLine);
                 break;
             case 8: //BEQ
                 if (splitLine.Length != 2) { AddError("BEQ takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
+                if (output == INVALID_LABEL_LOCATION) AddError("invalid label", assemblyLine);
                 break;
             case 9: //BNE
                 if (splitLine.Length != 2) { AddError("BNE takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
+                if (output == INVALID_LABEL_LOCATION) AddError("invalid label", assemblyLine);
                 break;
             case 10: //BGT
                 if (splitLine.Length != 2) { AddError("BGT takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
+                if (output == INVALID_LABEL_LOCATION) AddError("invalid label", assemblyLine);
                 break;
             case 11: //BLT
                 if (splitLine.Length != 2) { AddError("BLT takes 1 argument", assemblyLine); break; }
                 output += AssembleLabel(ref assemblyLineList, splitLine[1]);
+                if (output == INVALID_LABEL_LOCATION) AddError("invalid label", assemblyLine);
                 break;
             case 12: //AND
                 if (splitLine.Length != 4) { AddError("AND takes 3 arguments", assemblyLine); break; }
@@ -353,10 +373,13 @@ internal class Assembler
                 if (Array.IndexOf(extendedInstructionSet, line[0]) != -1)
                 {
                     AddError("extended instruction set used without preprocessor flag", string.Join(" ", line));
+                    opCode = INVALID_OPCODE;
                 }
                 else
                 {
                     AddError("invalid operation", string.Join(" ", line));
+                    opCode = INVALID_OPCODE;
+                    return 0;
                 }
 
             };
@@ -482,8 +505,8 @@ internal class Assembler
     public long AssembleLabel(ref List<string> line, string label)
     {
         label += ":";
+        //0x7FFFFFFFFFFFFFFF is the hexadecimal equivalent of -1
         long output = Array.IndexOf(line.ToArray(), label);
-
         return output;
     }
 

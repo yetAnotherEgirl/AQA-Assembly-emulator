@@ -426,7 +426,7 @@ internal class CPU
         }
         Accumulator = memoryDataRegister.GetRegister();
         memoryDataRegister.SetRegister(registers.GetRegister(instructionRegister.arguments[1]));
-        Accumulator = (int)Accumulator >> (int)memoryDataRegister.GetRegister();
+        Accumulator = (int)memoryDataRegister.GetRegister() >> (int)Accumulator;
 
         registers.SetRegister(instructionRegister.arguments[0], Accumulator);
     }
