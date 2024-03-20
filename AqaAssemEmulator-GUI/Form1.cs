@@ -455,8 +455,15 @@ namespace AqaAssemEmulator_GUI
         {
             CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
             if (CPUDelayInput.Text == "") CPUDelayInput.Text = Cpu.GetDelayInMs().ToString();
-            CpuDelayInMs = int.Parse(CPUDelayInput.Text);
-            Cpu.UpdateDelay(CpuDelayInMs);
+            try
+            {
+                CpuDelayInMs = int.Parse(CPUDelayInput.Text);
+                Cpu.UpdateDelay(CpuDelayInMs);
+            }
+            catch (Exception)
+            {
+                CPUDelayInput.Text = Cpu.GetDelayInMs().ToString();
+            }
         }
 
         //BAD!!!
@@ -508,7 +515,15 @@ namespace AqaAssemEmulator_GUI
             }
             TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
             if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
-            TraceTable.UpdateDepth(int.Parse(TraceTableDepthInput.Text) + 1);   //+1 because the first row is the header
+            try
+            {
+                TraceTable.UpdateDepth(int.Parse(TraceTableDepthInput.Text) + 1);   //+1 because the first row is the header
+            }
+            catch (Exception)
+            {
+                TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
+            }
+            
         }
 
         private void TraceTableDepthInput_KeyDown(object sender, KeyEventArgs e)
