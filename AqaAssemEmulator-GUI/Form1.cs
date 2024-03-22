@@ -29,6 +29,8 @@ namespace AqaAssemEmulator_GUI
 
         static ManualResetEventSlim ErrorRecieved = new(false);
 
+        
+
         public Window()
         {
             this.SuspendLayout();
@@ -63,6 +65,8 @@ namespace AqaAssemEmulator_GUI
             PopulateHowToTextbox();
 
             this.ResumeLayout(false);
+
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -85,7 +89,6 @@ namespace AqaAssemEmulator_GUI
             CpuInfo.Show();
 
             TestingModeCheckBox.CheckedChanged += TestingModeCheckBox_CheckedChanged;
-
         }
 
         void InitializeHardware()
@@ -194,7 +197,7 @@ namespace AqaAssemEmulator_GUI
                 UpdateSystemInfomation();
                 try
                 {
-                    TraceTable.UpdateTable(Assembler.GetVariables());
+                    if(TraceTable.TestingMode == false) TraceTable.UpdateTable(Assembler.GetVariables());
                 }
                 catch (ArgumentException e)
                 {
@@ -255,7 +258,7 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunProgram()
         {
-            TraceTable.UpdateTable(Assembler.GetVariables());
+            //TraceTable.UpdateTable(Assembler.GetVariables());
             Cpu.halted = false;
             CpuInfo.UpdateRegisters();
             while (Cpu.halted == false)
