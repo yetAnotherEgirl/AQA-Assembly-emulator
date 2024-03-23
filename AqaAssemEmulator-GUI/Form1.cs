@@ -29,19 +29,22 @@ namespace AqaAssemEmulator_GUI
 
         static ManualResetEventSlim ErrorRecieved = new(false);
 
-        
+
 
         public Window()
         {
             this.SuspendLayout();
             InitializeComponent();
-            Size currentSize = this.Size;
+            Size currentSize = new(1175, 1600);
+            this.Size = currentSize;
             this.MaximizeBox = false;
-            this.MaximumSize = currentSize;
-            this.MinimumSize = currentSize;
+            //this.MaximumSize = currentSize;
+            //this.MinimumSize = currentSize;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
 
             Point RamLabelPosition = new(ShowRam.Location.X + (ShowRam.Size.Width / 2) - (RamLabel.Size.Width / 2),
-                             ShowRam.Location.Y + (ShowRam.Size.Height / 2) + 40);
+                             ShowRam.Location.Y + (ShowRam.Size.Height / 2) + 80);
 
             RamLabel.Location = RamLabelPosition;
             RamLabel.BackColor = Color.Transparent;
@@ -50,7 +53,7 @@ namespace AqaAssemEmulator_GUI
 
             CPUtoRAMarrow = new PictureBox();
             CPUtoRAMarrow.Image = Image.FromFile("Assets/LongArrowRight.png");
-            CPUtoRAMarrow.Size = new Size(330, 65);
+            CPUtoRAMarrow.Size = new Size(330, 80);
             CPUtoRAMarrow.Location = new Point(501, 94);
             this.Hardware.Controls.Add(CPUtoRAMarrow);
 
@@ -58,15 +61,24 @@ namespace AqaAssemEmulator_GUI
 
             RAMtoCPUarrow = new PictureBox();
             RAMtoCPUarrow.Image = Image.FromFile("Assets/LongArrowLeft.png");
-            RAMtoCPUarrow.Size = new Size(330, 65);
-            RAMtoCPUarrow.Location = new Point(501, 154 + secondArrowOffset);
+            RAMtoCPUarrow.Size = new Size(330, 80);
+            RAMtoCPUarrow.Location = new Point(501, 184 + secondArrowOffset);
             this.Hardware.Controls.Add(RAMtoCPUarrow);
 
             PopulateHowToTextbox();
 
+            //account for scaling when using wine
+            Label x = new();
+            x.Text = "";
+            x.Size = new Size(0, 0);
+            x.Location = new Point(0, Tabs.Height + 400);
+            this.Controls.Add(x);
+
+            this.Size = new Size(1175, Tabs.Height * 2 + 200);
+
             this.ResumeLayout(false);
 
-            
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -197,7 +209,7 @@ namespace AqaAssemEmulator_GUI
                 UpdateSystemInfomation();
                 try
                 {
-                    if(TraceTable.TestingMode == false) TraceTable.UpdateTable(Assembler.GetVariables());
+                    if (TraceTable.TestingMode == false) TraceTable.UpdateTable(Assembler.GetVariables());
                 }
                 catch (ArgumentException e)
                 {
@@ -317,7 +329,7 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunButton_Click(object sender, EventArgs e)
         {
-           
+
 
             if (RAM.IsEmpty)
             {
@@ -375,7 +387,7 @@ namespace AqaAssemEmulator_GUI
                 string assembly = File.ReadAllText(OpenAssembly.FileName);
                 testingModePopout.UpdateAssembly(assembly.Split('\n'));
                 AssemblyTextBox.Text = assembly;
-                if(TraceTable.TestingMode) testingModePopout.Show();
+                if (TraceTable.TestingMode) testingModePopout.Show();
                 CompileAssembly(assembly);
 
             }
@@ -397,7 +409,7 @@ namespace AqaAssemEmulator_GUI
 
             UpdateSystemInfomation();
             TraceTable.Clear();
-             
+
         }
         #endregion hardware buttons
 
@@ -526,7 +538,7 @@ namespace AqaAssemEmulator_GUI
             {
                 TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
             }
-            
+
         }
 
         private void TraceTableDepthInput_KeyDown(object sender, KeyEventArgs e)
@@ -548,7 +560,7 @@ namespace AqaAssemEmulator_GUI
             }
             else
             {
-                if(TraceTable.TestingMode)
+                if (TraceTable.TestingMode)
                 {
                     testingModePopout.Show();
                     testingModePopout.UpdateAssembly(AssemblyTextBox.Lines);

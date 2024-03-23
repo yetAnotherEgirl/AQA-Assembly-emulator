@@ -31,6 +31,7 @@
             SaveAssembly = new SaveFileDialog();
             OpenAssembly = new OpenFileDialog();
             Settings = new TabPage();
+            TestingModeCheckBox = new CheckBox();
             TestingModeLabel = new Label();
             TraceTableDepthInput = new RichTextBox();
             TraceTableDepthLabel = new Label();
@@ -52,7 +53,6 @@
             Tabs = new TabControl();
             HowToTab = new TabPage();
             HowToTextbox = new RichTextBox();
-            TestingModeCheckBox = new CheckBox();
             Settings.SuspendLayout();
             Editor.SuspendLayout();
             Hardware.SuspendLayout();
@@ -85,6 +85,15 @@
             Settings.TabIndex = 3;
             Settings.Text = "Settings";
             Settings.UseVisualStyleBackColor = true;
+            // 
+            // TestingModeCheckBox
+            // 
+            TestingModeCheckBox.AutoSize = true;
+            TestingModeCheckBox.Location = new Point(565, 101);
+            TestingModeCheckBox.Name = "TestingModeCheckBox";
+            TestingModeCheckBox.Size = new Size(28, 27);
+            TestingModeCheckBox.TabIndex = 5;
+            TestingModeCheckBox.UseVisualStyleBackColor = true;
             // 
             // TestingModeLabel
             // 
@@ -217,7 +226,7 @@
             Hardware.Location = new Point(8, 46);
             Hardware.Name = "Hardware";
             Hardware.Padding = new Padding(3);
-            Hardware.Size = new Size(1134, 1016);
+            Hardware.Size = new Size(1134, 1107);
             Hardware.TabIndex = 0;
             Hardware.Text = "Hardware view";
             Hardware.UseVisualStyleBackColor = true;
@@ -225,7 +234,7 @@
             // RamLabel
             // 
             RamLabel.AutoSize = true;
-            RamLabel.Location = new Point(905, 452);
+            RamLabel.Location = new Point(895, 736);
             RamLabel.Name = "RamLabel";
             RamLabel.Size = new Size(165, 32);
             RamLabel.TabIndex = 5;
@@ -233,9 +242,9 @@
             // 
             // ResetButton
             // 
-            ResetButton.Location = new Point(512, 889);
+            ResetButton.Location = new Point(506, 931);
             ResetButton.Name = "ResetButton";
-            ResetButton.Size = new Size(300, 120);
+            ResetButton.Size = new Size(300, 78);
             ResetButton.TabIndex = 4;
             ResetButton.Text = "Reset System";
             ResetButton.UseVisualStyleBackColor = true;
@@ -243,9 +252,9 @@
             // 
             // HaltButton
             // 
-            HaltButton.Location = new Point(828, 889);
+            HaltButton.Location = new Point(828, 931);
             HaltButton.Name = "HaltButton";
-            HaltButton.Size = new Size(300, 120);
+            HaltButton.Size = new Size(300, 78);
             HaltButton.TabIndex = 3;
             HaltButton.Text = "Manual Halt";
             HaltButton.UseVisualStyleBackColor = true;
@@ -253,9 +262,9 @@
             // 
             // LoadFileButton
             // 
-            LoadFileButton.Location = new Point(259, 890);
+            LoadFileButton.Location = new Point(253, 931);
             LoadFileButton.Name = "LoadFileButton";
-            LoadFileButton.Size = new Size(247, 120);
+            LoadFileButton.Size = new Size(247, 79);
             LoadFileButton.TabIndex = 2;
             LoadFileButton.Text = "Load from file";
             LoadFileButton.UseVisualStyleBackColor = true;
@@ -263,9 +272,9 @@
             // 
             // RunButton
             // 
-            RunButton.Location = new Point(6, 889);
+            RunButton.Location = new Point(0, 932);
             RunButton.Name = "RunButton";
-            RunButton.Size = new Size(247, 120);
+            RunButton.Size = new Size(247, 78);
             RunButton.TabIndex = 1;
             RunButton.Text = "Run Program";
             RunButton.UseVisualStyleBackColor = true;
@@ -292,7 +301,7 @@
             Tabs.Location = new Point(12, 12);
             Tabs.Name = "Tabs";
             Tabs.SelectedIndex = 0;
-            Tabs.Size = new Size(1150, 1070);
+            Tabs.Size = new Size(1150, 1161);
             Tabs.TabIndex = 0;
             Tabs.SelectedIndexChanged += Tabs_TabIndexChanged;
             // 
@@ -315,15 +324,6 @@
             HowToTextbox.Size = new Size(1122, 1004);
             HowToTextbox.TabIndex = 0;
             HowToTextbox.Text = "";
-            // 
-            // TestingModeCheckBox
-            // 
-            TestingModeCheckBox.AutoSize = true;
-            TestingModeCheckBox.Location = new Point(565, 101);
-            TestingModeCheckBox.Name = "TestingModeCheckBox";
-            TestingModeCheckBox.Size = new Size(28, 27);
-            TestingModeCheckBox.TabIndex = 5;
-            TestingModeCheckBox.UseVisualStyleBackColor = true;
             // 
             // Window
             // 

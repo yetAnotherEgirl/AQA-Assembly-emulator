@@ -50,7 +50,7 @@ namespace AqaAssemEmulator_GUI
             Header.Size = headerSize;
             Header.Text = "CPU";
             Header.ReadOnly = true;
-            Header.Font = new Font("Arial", 20, FontStyle.Bold);
+            Header.Font = new Font("Arial", 16, FontStyle.Bold);
             Header.BackColor = Color.White;
             Header.ScrollBars = RichTextBoxScrollBars.None;
             Header.BorderStyle = BorderStyle.FixedSingle;
