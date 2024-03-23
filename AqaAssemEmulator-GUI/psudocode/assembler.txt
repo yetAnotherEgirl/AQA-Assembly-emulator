@@ -1,0 +1,375 @@
+﻿procedure AssembleFromString (string assembly):
+	extendedInstructionset = false
+	clear errors
+	clear machinecode
+	clear variables
+	assemblyLineList = split assembly by newline
+	uncompiledCode = assemblyLineList
+
+	preProcessAssembly (&assemblyLineList)
+
+	if index of "HALT" = -1:
+		add "HALT" to end of assemblyLineList
+		add new AssemblerError ("No HALT instruction found", Assembler.NoLineNumber, false) to errors
+	end if
+
+	for each string line in assemblyLineList:
+		add CompileAssemblyLine(&assemblyLineList, line) to machinecode
+	end for
+
+	remove duplicates from Variables
+	string[] specificRegisters = {"PC", "MAR", "MDR", "ACC", "CPSR"}
+	add specificRegisters to start of Variables
+	remove x from Variables where x contains "#"
+
+	bool failedToCompile = false
+
+	for each error in errors:
+		if error.isFatal:
+			failedToCompile = true
+			break for
+		end if
+	end for
+
+	if failedToCompile is ture:
+		clear machinecode
+		clear variables
+	end if
+end procedure
+
+
+procedure preProcessAssembly (string[] *assemblyLineList):
+	for int i = 0 to length of assemblyLineList:
+		string line = assemblyLineList[i]
+		int commentIndex = index of ";" in line
+		if commentIndex != -1:
+			line = substring line from 0 to commentIndex
+		end if
+	end for
+
+	string[] preprocessorList = assemblyLineList where x starts with "*"
+
+	for each preprocessorInstruction in preproccessorList:
+		string instruction = substring preprocessorInstruction from 1
+		string[] instructionParts = split instruction by " "
+		if index of "" in instructionParts != -1:
+			remove "" from instructionParts
+		end if
+
+		if splitinstructionParts[0] = "EXTENDED":
+			if length of instructionParts != 1:
+				AddError("invalid EXTENDED instruction, *EXTENDED takes no arguments", preProcessorInstruction)
+				break for
+			end if
+			extendedInstructionset = true
+		end if
+
+		if splitinstructionParts[0] = "INCLUDE":
+			if length of instructionParts != 2:
+				AddError("invalid INCLUDE instruction, *INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'", preProcessorInstruction)
+				break for
+			end if
+			string path = ""
+			string assembly = ""
+			try:
+				path = getFullPath(instructionParts[1])
+				assembly = readAllText(path)
+			catch:
+				AddError("failed to read file"", preProcessorInstruction)
+				break for
+			end try
+
+			sring[] newAssembly = split assembly by newline
+			newAssembly = newAssembly where x != ""
+			if instructionParts[2] = "FIRST":
+				assemblyLineList = newAssembly + assemblyLineList
+			else if instructionParts[2] = "LAST":
+				assemblyLineList = assemblyLineList + newAssembly
+			else if instructionParts[2] = "HERE":
+				int index = index of preProcessorInstruction in assemblyLineList
+				assemblyLineList = assemblyLineList[0 to index] + newAssembly + assemblyLineList[index to length of assemblyLineList]
+			else:
+				AddError("invalid INCLUDE instruction, *INCLUDE </path/to/file(.aqa)> <FIRST / LAST / HERE>'", preProcessorInstruction)
+				break for
+			end if
+		end if
+	end for
+
+	assembleLineList = assembleLineList where x != "*"
+	for int i = 0 to length of assemblyLineList:
+		string line = assemblyLineList[i]
+		int commentIndex = index of ";" in line
+		if commentIndex != -1:
+			line = substring line from 0 to commentIndex
+		end if
+	end for
+end procedure
+
+Function long CompileAssemblyLine(string[] *assemblyLineList, string assemblyLine)
+	assemblyLine = assemblyLine replace all "," with ""
+	if assemblyLine = "":
+		return 0
+	end if
+	string[] splitLine = split assemblyLine by " "
+	if index of "" in splitLine != -1:
+		splitLine = splitLine where x != ""
+	end if
+
+	long output = 0
+	long opcode = 0
+
+	output += AssembleOpcode(splitLine, &opcode)
+
+	switch (opcode):
+		case default:
+			throw argument Exception("Invalid opcode")
+			return 0
+		case INVALID_OPCODE:
+			return 0
+		case 0:
+			string errorText = "invalid label, labels must be 1 word and are followed by a colon"
+			if (length of splitLine > 1):
+				AddError(errorText, assemblyLine)
+			end if
+			int colonIndex = index of ":" in assemblyLine
+			if (colonIndex == -1):
+				AddError(errorText, assemblyLine)
+			end if
+			break
+		case 1:
+			if (length of splitLine != 3):
+				AddError("LDR takes 2 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleMemoryReference(splitLine[2], assemblyLine)
+			break
+		case 2:
+			if (length of splitLine != 3):
+				AddError("STR takes 2 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleMemoryReference(splitLine[2], assemblyLine)
+			break
+		case 3:
+			if (length of splitLine != 4):
+				AddError("ADD takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+            output += AssembleRegister(splitLine[2], assemblyLine, 1)
+            output += AssembleOpperand(splitLine[3], assemblyLine)
+            break
+		case 4:
+			if (length of splitLine != 4):
+				AddError("SUB takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleRegister(splitLine[2], assemblyLine, 1)
+			output += AssembleOpperand(splitLine[3], assemblyLine)
+			break
+		case 5:
+			if (length of splitLine != 3):
+				AddError("MOV takes 2 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleOpperand(splitLine[2], assemblyLine)
+			char[] opperand = splitLine[2]
+			if (opperand[0] != "#" and opperand[0] != "R"):
+				AddError("MOV has been used like a LDR, consider using LDR instead", assemblyLine, false)
+			end if
+			break
+		case 6:
+			if (length of splitLine != 3):
+				AddError("CMP takes 2 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleOpperand(splitLine[2], assemblyLine)
+			break
+		case 7:
+			if (length of splitLine != 2):
+				AddError("B takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleLabel(splitLine[1], assemblyLine)
+			if (output == -1):
+				AddError("invalid label, labels must be 1 word and are followed by a colon", assemblyLine)
+			end if
+			break
+		case 8:
+			if (length of splitLine != 2):
+				AddError("BEQ takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleLabel(splitLine[1], assemblyLine)
+			if (output == -1):
+				AddError("invalid label, labels must be 1 word and are followed by a colon", assemblyLine)
+			end if
+			break
+		case 9:
+			if (length of splitLine != 2):
+				AddError("BNE takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleLabel(splitLine[1], assemblyLine)
+			if (output == -1):
+				AddError("invalid label, labels must be 1 word and are followed by a colon", assemblyLine)
+			end if
+			break
+		case 10:
+			if (length of splitLine != 2):
+				AddError("BGT takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleLabel(splitLine[1], assemblyLine)
+			if (output == -1):
+				AddError("invalid label, labels must be 1 word and are followed by a colon", assemblyLine)
+			end if
+			break
+		case 11:
+			if (length of splitLine != 2):
+				AddError("BLT takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleLabel(splitLine[1], assemblyLine)
+			if (output == -1):
+				AddError("invalid label, labels must be 1 word and are followed by a colon", assemblyLine)
+			end if
+			break
+		case 12:
+			if (length of splitLine != 4):
+				AddError("AND takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+            output += AssembleRegister(splitLine[2], assemblyLine, 1)
+            output += AssembleOpperand(splitLine[3], assemblyLine)
+            break
+		case 13:
+			if (length of splitLine != 4):
+				AddError("ORR takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleRegister(splitLine[2], assemblyLine, 1)
+			output += AssembleOpperand(splitLine[3], assemblyLine)
+			break
+		case 14:
+			if (length of splitLine != 4):
+				AddError("EOR takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+			output += AssembleRegister(splitLine[2], assemblyLine, 1)
+			output += AssembleOpperand(splitLine[3], assemblyLine)
+			break
+		case 15:
+			if (length of splitLine != 3):
+				AddError("MVN takes 2 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+            output += AssembleOpperand(splitLine[3], assemblyLine)
+            break
+		case 16:
+			if (length of splitLine != 4):
+				AddError("LSL takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+            output += AssembleRegister(splitLine[2], assemblyLine, 1)
+            output += AssembleOpperand(splitLine[3], assemblyLine)
+            break
+		case 17:
+			if (length of splitLine != 4):
+				AddError("LSR takes 3 arguments", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine)
+            output += AssembleRegister(splitLine[2], assemblyLine, 1)
+            output += AssembleOpperand(splitLine[3], assemblyLine)
+            break
+		case 18:
+			if (length of splitline != 1):
+				AddError("HALT takes no arguments", assemblyLine)
+			end if
+			break
+		case 19:
+			if (length of splitLine != 2):
+				AddError("INPUT takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine) + 1
+			break
+		case 20:
+			if (length of splitLine != 2):
+				AddError("OUTPUT takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine) + 1
+			break
+		case 21:
+			if (length of splitLine != 2):
+				AddError("DUMP takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssenbleDumpMode(splitLine[1], assemblyLine)
+			break
+		case 22:
+			if (length of splitLine != 2):
+				AddError("JMP takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine) + 1
+			break
+		case 23:
+			if (length of splitLine != 2):
+				AddError("CDP takes 1 argument", assemblyLine)
+				break
+			end if
+			output += AssembleRegister(splitLine[1], assemblyLine) + 1
+			break
+		end switch
+
+	return output
+end function
+
+Function long AssembleOpcode(string[] line, int *opcode):
+	opcode = index of line[0] in instructionSet + 1
+
+	if (opcode == 0 and extendedInstructionsetEnabled):
+		opcode = index of line[0] in extendedInstructionSet + 1
+		if (opcode != 0):
+			opcode += length of instructionSet
+		end if
+	end if
+
+	if (opcode == 0):
+		if (length of line > 1):
+			if (index of line[0] in extendedInstructionSet != -1):
+				AddError("invalid opcode, did you mean to enable the extended instruction set?", join line by " "))
+				opcode = INVALID_OPCODE
+			else:
+				AddError("invalid opcode", line)
+				opcode = INVALID_OPCODE
+			end if
+		end if
+		return 0
+	end if
+
+	long output = opcode << opcodeOffset * bitsPerNibble
+	return output
+end function
+
+function long AssembleRegister(string register, string line, int registerOffsetIndex = 1):
+	add register to Variables
+	if (register[0] != "R"):
+		AddError("invalid register, registers must start with 'R'", line)
+		return 0
+	end if
+	int registerAddress = 0
+end function
