@@ -1,25 +1,25 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\",
+  "WorkspaceRootPath": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|c:\\users\\emmy\\source\\repos\\aqaassememulator-gui\\assememulatorgui\\aqaassememulator-gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\backend\\cpu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:backend\\cpu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\tracetable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\tracetable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:tracetable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|c:\\users\\emmy\\source\\repos\\aqa-assembly-emulator\\aqaassememulator-gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\backend\\cpu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:backend\\cpu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{0EDFB520-B9D6-429E-B963-AF38C9F48B0C}|AqaAssemEmulator-GUI.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
@@ -30,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,11 +46,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Program.cs",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Program.cs",
               "RelativeToolTip": "Program.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAgAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -58,11 +58,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "CPU.cs",
-              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\backend\\CPU.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\backend\\CPU.cs",
               "RelativeDocumentMoniker": "backend\\CPU.cs",
-              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\backend\\CPU.cs",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\backend\\CPU.cs",
               "RelativeToolTip": "backend\\CPU.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -72,9 +72,9 @@
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "Form1.cs [Design]",
-              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
-              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Form1.cs [Design]",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Form1.cs [Design]",
               "RelativeToolTip": "Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-18T15:02:21.398Z",
@@ -82,28 +82,29 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
-              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\Form1.cs",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AQIAABoAAAAAAAAAAAAAwC0AAAAIAAAA",
+              "ViewState": "AQIAAAYAAAAAAAAAAAA8wBQAAAASAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-06T11:03:33.854Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "TraceTable.cs",
-              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\TraceTable.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\TraceTable.cs",
               "RelativeDocumentMoniker": "TraceTable.cs",
-              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AqaAssemEmulator-GUI\\AssemEmulatorGUI\\AqaAssemEmulator-GUI\\TraceTable.cs",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\TraceTable.cs",
               "RelativeToolTip": "TraceTable.cs",
-              "ViewState": "AQIAAJwAAAAAAAAAAADwv6cAAAAaAAAA",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAABQAAAAXAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-06T11:03:34.909Z"
+              "WhenOpened": "2024-03-06T11:03:34.909Z",
+              "EditorCaption": ""
             }
           ]
         }

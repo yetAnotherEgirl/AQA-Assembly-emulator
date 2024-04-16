@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace AqaAssemEmulator_GUI
 {
-    internal class D : UserControl
+    internal class TraceTable : UserControl
     {
         private CPU CPU;
         private Memory RAM;
@@ -26,7 +26,7 @@ namespace AqaAssemEmulator_GUI
         TextBox[,] TraceTableEntries;
         string[,] TraceTableData;
 
-        public D(CPU CPU, ref Memory ram, int TableDepth = 50)
+        public TraceTable(CPU CPU, ref Memory ram, int TableDepth = 50)
         {
             RAM = ram;
             this.TableDepthStep = TableDepth;

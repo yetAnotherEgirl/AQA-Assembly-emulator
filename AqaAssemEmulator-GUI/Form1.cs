@@ -18,7 +18,7 @@ namespace AqaAssemEmulator_GUI
 
         int CpuDelayInMs;
 
-        D TraceTable;
+        TraceTable TraceTable;
 
         AssemblerErrorDisplay assemblerErrorDisplay;
         EmulatorErrorDisplay emulatorErrorDisplay;
@@ -79,7 +79,7 @@ namespace AqaAssemEmulator_GUI
             emulatorErrorDisplay.IgnoreButtonClicked += EmulatorIgnoreButtonClicked;
             emulatorErrorDisplay.OkButtonClicked += EmulatorOkButtonClicked;
 
-            TraceTable = new D(Cpu, ref RAM);
+            TraceTable = new TraceTable(Cpu, ref RAM);
             TraceTblTab.Controls.Add(TraceTable);
             TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
             TraceTable.Show();
