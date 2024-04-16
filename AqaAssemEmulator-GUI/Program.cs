@@ -2,14 +2,11 @@ namespace AqaAssemEmulator_GUI
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+            //one potential idea is to have the option to pass a path 
+            //to a .aqa file as an argument to the program
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             ApplicationConfiguration.Initialize();
             Application.Run(new Window());

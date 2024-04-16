@@ -16,13 +16,14 @@ namespace AqaAssemEmulator_GUI.backend
             IsFatal = isFatal;
         }
 
-        public abstract new string ToString();
+        public abstract new string ToString(); //all children must override this method as it is used to display the error message
     }
 
     internal class AssemblerError : Error
     {
         public readonly int LineNumber;
 
+        //these are to be used as line numbers when there is no actual line number present
         public const int NoLineNumber = -1;
         public const int ErrorInIncludedFile = -2;
 
@@ -47,7 +48,7 @@ namespace AqaAssemEmulator_GUI.backend
 
         public override string ToString()
         {
-            return $"{Message}";
+            return Message;
         }
     }
 }

@@ -1,41 +1,32 @@
 namespace AqaAssemEmulator_GUI.backend;
 
-internal class machineCodeLine
+internal class MachineCodeLine
 {
+    /* this class is used to represent the decoded machine code line
+     * that is inside the instruction register. it is not related to the
+     * output of the assembler, which just outputs the machine code 
+     * as a list of longs
+     * 
+     * a potential refactor would be to have this as a struct instead
+     * however this is not necessary to the functionality of the program
+     */
+
     public int instruction;
     public List<int> arguments;
     public int AddressMode;
 
-    public machineCodeLine(int instruction, List<int> arguments, int AddressMode)
+    public MachineCodeLine(int instruction, List<int> arguments, int AddressMode)
     {
         this.instruction = instruction;
         this.arguments = arguments;
         this.AddressMode = AddressMode;
     }
 
-    public machineCodeLine()
+    public MachineCodeLine()
     {
         instruction = 0;
-        arguments = new List<int>();
+        arguments = [];
         AddressMode = 0;
     }
-
-    public override string ToString()
-    {
-        string[] fullInstructionSet = Assembler.instructionSet.Concat(Assembler.extendedInstructionSet).ToArray();
-        string output = fullInstructionSet[instruction];
-        
-        if (arguments.Count > 0)
-        {
-            output += " ";
-            for (int i = 0; i < arguments.Count; i++)
-            {
-                output += arguments[i].ToString();
-                if (i < arguments.Count - 1) output += ", ";
-            }
-        }
-        return output;
-    }
-
 
 }

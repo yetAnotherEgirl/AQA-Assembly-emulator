@@ -31,15 +31,20 @@ namespace AqaAssemEmulator_GUI
 
             for (int i = 0; i < GridSize; i++)
             {
+                //split i into x and y coordinates
                 int x = i % GridWidth;
                 int y = i / GridWidth;
-                Point location = new Point(Location.X + (x * 150), Location.Y + (y * 70));
+
+                Point location = new(Location.X + (x * 150), Location.Y + (y * 70));
+
                 if (i < memory.GetLength())
                 {
+                    //this will show a real memory address
                     MemoryComponents[x, y] = new MemoryComponent(i, memory.QuereyAddress(i), location, ref memory);
                 }
                 else
                 {
+                    //this will just be a blank placeholder
                     MemoryComponents[x, y] = new MemoryComponent(location, ref memory);
                 }
                 Controls.Add(MemoryComponents[x, y]);
@@ -48,6 +53,7 @@ namespace AqaAssemEmulator_GUI
             this.Size = new Size(GridWidth * 150, GridHieght * 70);
         }
 
+        //this calculates the dimensions of the grid, rather than returning the dimensions
         private void GetDimensions()
         {
             int size = memory.GetLength();

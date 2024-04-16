@@ -104,8 +104,6 @@
             TraceTableDepthInput.Size = new Size(200, 40);
             TraceTableDepthInput.TabIndex = 3;
             TraceTableDepthInput.Text = "30";
-            TraceTableDepthInput.TextChanged += TraceTableDepthInput_TextChanged;
-            TraceTableDepthInput.Enter += TraceTableDepthInput_Enter;
             TraceTableDepthInput.KeyDown += TraceTableDepthInput_KeyDown;
             TraceTableDepthInput.Leave += TraceTableDepthInput_Leave;
             // 
@@ -127,7 +125,6 @@
             CPUDelayInput.Size = new Size(200, 40);
             CPUDelayInput.TabIndex = 1;
             CPUDelayInput.Text = "100";
-            CPUDelayInput.TextChanged += CPUDelayInput_TextChanged;
             CPUDelayInput.KeyDown += CPUDelayInput_KeyDown;
             CPUDelayInput.Leave += CPUDelayInput_Leave;
             // 

@@ -13,8 +13,8 @@ namespace AqaAssemEmulator_GUI
 {
     public partial class RamGrid : Form
     {
-        Memory RAM;
-        MemoryGrid grid;
+        readonly Memory RAM;
+        readonly MemoryGrid grid;
 
         internal RamGrid(ref Memory ram)
         {
@@ -28,9 +28,10 @@ namespace AqaAssemEmulator_GUI
 
         private void RamGrid_Load(object sender, EventArgs e)
         {
+            //configure the looks of the form
             this.Controls.Add(grid);
 
-            Size gridSize = new Size (grid.Size.Width + 25, grid.Size.Height + 70);
+            Size gridSize = new(grid.Size.Width + 25, grid.Size.Height + 70);
             this.Size = gridSize;
 
             this.MaximizeBox = false;
@@ -50,6 +51,7 @@ namespace AqaAssemEmulator_GUI
             grid.UpdateMemory();
         }
 
+        // Hide the form when the user tries to close it, this way the form is not destroyed and can be shown again
         private void RamGrid_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)

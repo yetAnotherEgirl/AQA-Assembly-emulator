@@ -1,11 +1,9 @@
-using AqaAssemEmulator_GUI.backend;
+﻿using AqaAssemEmulator_GUI.backend;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AqaAssemEmulator_GUI
 {
-    //! 
-
     public partial class Window : Form
     {
         static CPU Cpu;
@@ -15,8 +13,8 @@ namespace AqaAssemEmulator_GUI
         CpuInfoComponent CpuInfo;
         RamGrid RamGrid;
 
-        PictureBox CPUtoRAMarrow;
-        PictureBox RAMtoCPUarrow;
+        readonly PictureBox CPUtoRAMarrow;
+        readonly PictureBox RAMtoCPUarrow;
 
         int CpuDelayInMs;
 
@@ -27,10 +25,9 @@ namespace AqaAssemEmulator_GUI
 
         readonly TestingModePopout testingModePopout = new();
 
-        static ManualResetEventSlim ErrorRecieved = new(false);
-
-        
-
+        static ManualResetEventSlim ErrorRecieved = new(false); //a manual reset event to stop the CPU from running if an error occurs
+                                                                //this type is used as it will immediately stop the CPU thread
+        //handle generating the form UI
         public Window()
         {
             this.SuspendLayout();
@@ -69,6 +66,7 @@ namespace AqaAssemEmulator_GUI
             
         }
 
+        //configure the components of the form
         private void Form1_Load(object sender, EventArgs e)
         {
             CpuDelayInMs = int.Parse(CPUDelayInput.Text);
@@ -82,15 +80,15 @@ namespace AqaAssemEmulator_GUI
             emulatorErrorDisplay.OkButtonClicked += EmulatorOkButtonClicked;
 
             TraceTable = new TraceTable(Cpu, ref RAM);
-            this.TraceTblTab.Controls.Add(TraceTable);
+            TraceTblTab.Controls.Add(TraceTable);
             TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
-            TraceTableDepthInput_Enter(sender, e);
             TraceTable.Show();
             CpuInfo.Show();
 
             TestingModeCheckBox.CheckedChanged += TestingModeCheckBox_CheckedChanged;
         }
 
+        //initialize the hardware components and UI representing them
         void InitializeHardware()
         {
             RAM = new Memory(200);
@@ -111,7 +109,7 @@ namespace AqaAssemEmulator_GUI
         {
             if (AssemblyTextBox.Text == "")
             {
-                System.Media.SystemSounds.Beep.Play();
+                System.Media.SystemSounds.Beep.Play(); //beep!
                 MessageBox.Show("Assembly cannot be empty",
                                 "Save Error",
                                 MessageBoxButtons.OK,
@@ -119,6 +117,7 @@ namespace AqaAssemEmulator_GUI
                 return;
             }
 
+            //only deal with .aqa files
             SaveAssembly.Filter = "Assembly Files (*.aqa)|*.aqa";
             SaveAssembly.DefaultExt = "aqa";
             SaveAssembly.Title = "Save Assembly";
@@ -132,6 +131,7 @@ namespace AqaAssemEmulator_GUI
 
         private void OpenButton_Click(object sender, EventArgs e)
         {
+            //only deal with .aqa files
             OpenAssembly.Filter = "Assembly Files (*.aqa)|*.aqa";
             OpenAssembly.DefaultExt = "aqa";
             OpenAssembly.Title = "Open Assembly";
@@ -143,6 +143,7 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //load the assembly from the editor into the RAM
         private async void LoadButton_Click(object sender, EventArgs e)
         {
             if (AssemblyTextBox.Text == "")
@@ -159,40 +160,23 @@ namespace AqaAssemEmulator_GUI
         #endregion editor buttons
 
 
-
+        //compile the assembly and load it into the RAM
         async void CompileAssembly(string assembly)
         {
-            /*x
-                 try
-                 {
-                     Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
-                     Task resetRam = Task.Run(() => RAM.Reset());
-                     Task.WaitAll(assemble, resetRam);
-                     RAM.LoadMachineCode(Assembler.GetMachineCode());
-                     MessageBox.Show("Assembly loaded successfully",
-                                     "Load Success",
-                                     MessageBoxButtons.OK
-                                     );
-                     UpdateSystemInfomation();
-                     TraceTable.UpdateTable(Assembler.GetVariables());
-                 }
-                 catch (Exception e)
-                 {
-                     MessageBox.Show(e.Message,
-                                     "Compile Error",
-                                     MessageBoxButtons.OK
-                                     );
-                     throw;
-                 }
-              */
+            //update the assembly in the testing mode popout
             testingModePopout.UpdateAssembly(AssemblyTextBox.Lines);
+            
+            //compile the assembly and reset the RAM asynchronously (this is done to prevent the UI from freezing and speed up
+            //performance as both can be intensive on low end systems)
             Task assemble = Task.Run(() => Assembler.AssembleFromString(assembly));
             Task resetRam = Task.Run(() => RAM.Reset());
             Task.WaitAll(assemble, resetRam);
             List<AssemblerError> errors = Assembler.GetCompilationErrors();
 
+            //if there are no errors this will return early
             if (errors.Count == 0)
             {
+                //load the machine code into the RAM, update the system information and update the trace table
                 RAM.LoadMachineCode(Assembler.GetMachineCode());
                 UpdateSystemInfomation();
                 try
@@ -206,10 +190,12 @@ namespace AqaAssemEmulator_GUI
                 return;
             }
 
+            //display the errors to the user
             assemblerErrorDisplay.SetErrors(errors);
             assemblerErrorDisplay.ShowDialog();
         }
 
+        //this will be raised if the user clicks the ignore button on the assembler error display
         void AssemblerIgnoreButtonClicked(object? sender, EventArgs e)
         {
             RAM.LoadMachineCode(Assembler.GetMachineCode());
@@ -217,37 +203,22 @@ namespace AqaAssemEmulator_GUI
             TraceTable.UpdateTable(Assembler.GetVariables());
         }
 
+        //this will be raised if the user clicks the ignore button on the emulator error display
+        //it resets the error flag and allows the user to continue
         void EmulatorIgnoreButtonClicked(object? sender, EventArgs e)
         {
             ErrorRecieved = new(false);
         }
 
+        //this will be raised if the user clicks the ok button on the emulator error display
         void EmulatorOkButtonClicked(object? sender, EventArgs e)
         {
             Cpu.halted = true;
             UpdateSystemInfomation();
         }
 
-        //no longer needed
-        /*x
-         static bool IsFailure(List<AssemblerError> errors)
-         {
-             bool failedToCompile = false;
-             if (errors.Count != 0)
-             {
-                 foreach (AssemblerError error in errors)
-                 {
-                     if (error.IsFatal)
-                     {
-                         failedToCompile = true;
-                         break;
-                     }
-                 }
-             }
-             return failedToCompile;
-         }
-         */
-
+        //update the system information (CPU registers and RAM) and the trace table, this will be called 
+        //after each CPU cycle and will only run if there are no errors (as the error may propogate to the UI)
         void UpdateSystemInfomation()
         {
             if (ErrorRecieved.IsSet) return;
@@ -258,11 +229,12 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunProgram()
         {
-            //TraceTable.UpdateTable(Assembler.GetVariables());
             Cpu.halted = false;
             CpuInfo.UpdateRegisters();
             while (Cpu.halted == false)
             {
+                //this should never happen as the CPU will throw a runtime error if the program counter is out of bounds
+                //however this is a good safety check
                 if (Cpu.GetProgramCounter() >= RAM.GetLength())
                 {
                     MessageBox.Show("Program counter out of bounds",
@@ -271,6 +243,9 @@ namespace AqaAssemEmulator_GUI
                                     MessageBoxIcon.Error);
                     return;
                 }
+                //each of these steps is awaited to allow the UI to update between each step, this is done to prevent the UI from
+                //freezing such as waiting for the delay on each step to pass, we update the system information between each step
+                //and update the trace table after each cycle
 
                 await Task.Run(() =>
                 {
@@ -299,9 +274,12 @@ namespace AqaAssemEmulator_GUI
             }
 
             UpdateSystemInfomation();
-            TraceTable.RemoveExtraLines();
+            TraceTable.RemoveExtraLines(); //used for testing mode
         }
 
+        //this will be raised if an error occurs in the CPU, it will display the error to the user and
+        //raise the error flag, this immediately stops the CPU from running allowing us to display the error
+        //and potentially give the user the option to continue
         private void CPU_EmulatorErrorOccurred(object? sender, EmulatorErrorEventArgs e)
         {
             ErrorRecieved.Set();
@@ -317,7 +295,36 @@ namespace AqaAssemEmulator_GUI
 
         private async void RunButton_Click(object sender, EventArgs e)
         {
-           
+            /* the logic of this function is as follows:
+              *        ┌────────────┐         
+              *     No │Is RAM      │         
+              *   ┌────┤empty?      │         
+              *   │    └─────┬──────┘         
+              *   │          │Yes                  
+              *   │          │                     
+              *   │          │                     
+              *   │    ┌─────▼──────┐         
+              *   │    │Is Assem-   │ Yes     
+              *   │    │textbox     ├─────┐   
+              *   │    │empty?      │     │   
+              *   │    └─────┬──────┘     │   
+              *   │          │No          │   
+              *   │          │            │   
+              *   │          │            │   
+              *   │    ┌─────▼──────┐     │   
+              *   ├────┤Compile from│     │   
+              *   │    │textbox     │     │   
+              *   │    └────────────┘     │   
+              *   │                       │   
+              * ┌─▼───────┐        ┌──────▼──┐
+              * │ is CPU  ├────────►Return   │
+              * │ running?│  Yes   │         │
+              * └┬────────┘        └──────▲──┘
+              *  │                        │   
+              *  │No  ┌────────────┐      │   
+              *  └────►RunProgram  ├──────┘   
+              *       └────────────┘          
+             */
 
             if (RAM.IsEmpty)
             {
@@ -354,8 +361,10 @@ namespace AqaAssemEmulator_GUI
             RunProgram();
         }
 
+        //this does the same as loads a file into RAM, however it will not run the program
         private void LoadFileButton_Click(object sender, EventArgs e)
         {
+            //dont load a file if the CPU is running!
             if (Cpu.halted == false)
             {
                 MessageBox.Show("Cannot load from file while CPU is running",
@@ -365,6 +374,7 @@ namespace AqaAssemEmulator_GUI
                 return;
             }
 
+            //only deal with .aqa files
             OpenAssembly.Filter = "Assembly Files (*.aqa)|*.aqa";
             OpenAssembly.DefaultExt = "aqa";
             OpenAssembly.Title = "Open Assembly";
@@ -381,12 +391,14 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //a button to halt the CPU, this is useful if the user has accidentally created an infinite loop
         private void HaltButton_Click(object sender, EventArgs e)
         {
             Cpu.halted = true;
             UpdateSystemInfomation();
         }
 
+        //a button to reset the CPU, RAM, and trace table, this is useful if the user wants to start a new program
         private async void ResetButton_Click(object sender, EventArgs e)
         {
             Task ResetCpuTask = Task.Run(Cpu.Reset);
@@ -402,6 +414,12 @@ namespace AqaAssemEmulator_GUI
         #endregion hardware buttons
 
         #region settings
+        //the regex used to remove all non-numeric characters from the input
+        //it is defined here so we can calculate it at compile time
+        [GeneratedRegex("[^0-9]")]
+        private static partial Regex ParseNumber();
+
+        //this gets called when the user attempts to change the testing mode, it will display an error if the CPU is running
         private void TestingModeCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (Cpu.halted == false)
@@ -420,6 +438,7 @@ namespace AqaAssemEmulator_GUI
                 TraceTable.UpdateTable(Assembler.GetVariables());
             }
 
+            //display the testing mode popout if the user is in the trace table tab
             if (TestingModeCheckBox.Checked)
             {
                 testingModePopout.Show();
@@ -429,20 +448,6 @@ namespace AqaAssemEmulator_GUI
             {
                 testingModePopout.Hide();
             }
-        }
-
-
-        private void CPUDelayInput_TextChanged(object sender, EventArgs e)
-        {
-            /* this is a bad way to do this, it makes it a pain for the user to type in a number
-             * the cursor will jump to the beginning of the string every time a character is entered
-             */
-            /*x
-              * CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
-              * if (CPUDelayInput.Text == "") CPUDelayInput.Text = "0";
-              * CpuDelayInMs = int.Parse(CPUDelayInput.Text);
-              * Cpu.UpdateDelay(CpuDelayInMs);
-             */
         }
 
         private void CPUDelayInput_KeyDown(object sender, KeyEventArgs e)
@@ -456,7 +461,8 @@ namespace AqaAssemEmulator_GUI
 
         private void CPUDelayInput_Leave(object sender, EventArgs e)
         {
-            CPUDelayInput.Text = Regex.Replace(CPUDelayInput.Text, "[^0-9]", "");
+            //use regex to remove all non-numeric characters from the input
+            CPUDelayInput.Text = ParseNumber().Replace(CPUDelayInput.Text, "");
             if (CPUDelayInput.Text == "") CPUDelayInput.Text = Cpu.GetDelayInMs().ToString();
             try
             {
@@ -469,40 +475,8 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
-        //BAD!!!
-        private void TraceTableDepthInput_TextChanged(object sender, EventArgs e)
-        {
-            /* this was done the same way as CPUDelayInput_TextChanged, the same explanation applies:
-             * 
-             * this is a bad way to do this, it makes it a pain for the user to type in a number
-             * the cursor will jump to the beginning of the string every time a character is entered
-             */
-            /*x
-              * TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
-              * if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = "10";
-              */
-        }
-
-        //x BAD!!!
-        private void TraceTableDepthInput_Enter(object sender, EventArgs e)
-        {   /* this was another bad idea, however this code is still useful
-             * It just needs to be called from somewhere else
-             */
-            /*x
-               * if (!Cpu.halted)
-               * {
-               *     MessageBox.Show("Cannot change trace table depth while CPU is running",
-               *                     "Runtime Error",
-               *                     MessageBoxButtons.OK,
-               *                     MessageBoxIcon.Error);
-               * 
-               *     TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
-               * 
-               *     return;
-               * }
-              */
-        }
-
+    
+        //this gets called when the user attempts to change the trace table depth, it will display an error if the CPU is running
         private void TraceTableDepthInput_Leave(object sender, EventArgs e)
         {
             if (!Cpu.halted)
@@ -516,7 +490,7 @@ namespace AqaAssemEmulator_GUI
 
                 return;
             }
-            TraceTableDepthInput.Text = Regex.Replace(TraceTableDepthInput.Text, "[^0-9]", "");
+            TraceTableDepthInput.Text = ParseNumber().Replace(TraceTableDepthInput.Text, "");
             if (TraceTableDepthInput.Text == "") TraceTableDepthInput.Text = TraceTable.GetDepth().ToString();
             try
             {
@@ -556,6 +530,8 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //populate the how to textbox with information about the emulator, there is nothing special about this,
+        //just many calls to SelectionFont and AppendText
         void PopulateHowToTextbox()
         {
             Font title = new("Arial", 20);
@@ -678,6 +654,6 @@ namespace AqaAssemEmulator_GUI
                 "you do not get stuck in a loop");
         }
 
-        
+    
     }
 }

@@ -13,9 +13,10 @@ namespace AqaAssemEmulator_GUI
         private Label AddressLabel;
         private TextBox Value;
         public long data;
-        private int address;
+        private readonly int address;
         public Memory RAM;
 
+        //this constructor is used to create a memory component pointing to a specific memory address
         public MemoryComponent(int address, long data, Point location, ref Memory ram)
         {
             this.address = address;
@@ -23,6 +24,8 @@ namespace AqaAssemEmulator_GUI
             Value = new TextBox();
             InitializeComponent(address, data, location, ref ram);
         }
+
+        //this constructor is used to create a blank memory component that is not pointing to any memory address
         public MemoryComponent(Point location, ref Memory ram)
         {
             this.address = -1;
@@ -47,8 +50,8 @@ namespace AqaAssemEmulator_GUI
 
             this.Location = location;
 
-            Point AddressOffset = new Point(-1, 0);
-            Point ValueOffset = new Point(-1,35);
+            Point AddressOffset = new(-1, 0);
+            Point ValueOffset = new(-1,35);
 
             AddressLabel.Location = AddressOffset;
             Value.Location = ValueOffset;
@@ -57,41 +60,12 @@ namespace AqaAssemEmulator_GUI
             this.Size = size;
             Value.Size = size;
             AddressLabel.Size = size;
-
-        /*  this.Address.Location = new Point(location.X + AddressOffset.X,
-         *                                    location.Y + AddressOffset.Y);
-         *
-         *  this.Value.Location = new Point(location.X + ValueOffset.X,
-         *                                  location.Y + ValueOffset.Y);
-         *                                  
-         *  this caused wacky shit to happen
-        */
             
             this.BorderStyle = BorderStyle.FixedSingle;
 
             Controls.Add(Value);
             Controls.Add(AddressLabel);
-
-//            Value.TextChanged += Value_TextChanged;
         }
- 
-//       fucks up UpdateValue(), find new method for input validation
-//
-//       private void Value_TextChanged(object sender, EventArgs e)
-//       {
-//           if (address == -1) return;
-//
-//           if (Value.Text.Length == 0) Value.Text = data.ToString();
-//
-//           if (!int.TryParse(Value.Text, out int result)) Value.Text = data.ToString();
-//
-//           data = result;
-//
-//           long addressLong = (long)address;
-//           long valueLong = (long)data;
-//
-//           RAM.SetAddress(addressLong, valueLong);
-//       }
 
         public void UpdateValue()
         {

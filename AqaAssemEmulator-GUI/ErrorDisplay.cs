@@ -8,6 +8,10 @@ namespace AqaAssemEmulator_GUI
 {
     internal abstract class ErrorDisplay<T> : Form
     {
+        /* this is an abstract forms class used to display errors of type T to the user
+         * it defines the basic layout of the form and the basic functionality of the buttons
+         */
+
         protected Button OkButton;
         protected TextBox ErrorTextBox;
 
@@ -27,6 +31,7 @@ namespace AqaAssemEmulator_GUI
             IgnoreButton = new Button();
         }
 
+        //this is protected so that the children classes can call it in their constructors
         protected void InitializeComponent()
         {
             SuspendLayout();
@@ -61,9 +66,6 @@ namespace AqaAssemEmulator_GUI
             Controls.Add(OkButton);
             Controls.Add(ErrorTextBox);
 
-            // this line doesnt affect the code as we check this in the SetErrors method
-            //x if(!IsFatal) Controls.Add(IgnoreButton);
-
             ResumeLayout(false);
         }
 
@@ -87,6 +89,8 @@ namespace AqaAssemEmulator_GUI
             ResumeLayout(false);
         }
 
+        //these 2 methods are abstract so that the children classes can implement them, 
+        //as the errors are stored in different ways in each class
         protected abstract bool IsFailure();
 
         protected abstract string[] GetErrors();
@@ -94,21 +98,23 @@ namespace AqaAssemEmulator_GUI
         protected void OkButton_Click(object? sender, EventArgs e)
         {
             OkButtonClicked?.Invoke(this, e);
-            Close();
+            Close(); //this should also invoke the OnClosing method
         }
 
         protected void IgnoreButton_Click(object? sender, EventArgs e)
         {
             IgnoreButtonClicked?.Invoke(this, e);
-            Close();
+            Close(); //this should also invoke the OnClosing method
         }
 
+        //this is to prevent the form the form from being disposed when the user closes it
+        //as it is reused, instead it is hidden
         protected void OnClosing(object? sender, EventArgs e)
         {
             Errors.Clear();
            
             ErrorTextBox.Clear();
-            this.Hide();
+            Hide();
         }
     }
 }

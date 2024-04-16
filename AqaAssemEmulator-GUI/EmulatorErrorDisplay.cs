@@ -9,8 +9,6 @@ namespace AqaAssemEmulator_GUI
 {
     internal class EmulatorErrorDisplay : ErrorDisplay<Error>
     {
-        //! maybe add a Dump button to dump the memory to a file?
-
         public EmulatorErrorDisplay()
         {
             Name = "Emulator Error";
@@ -21,7 +19,7 @@ namespace AqaAssemEmulator_GUI
 
         override protected bool IsFailure()
         {
-            bool CausedCrash = false;
+            bool CausedCrash = false; //causedCrash means that the error is fatal
             if (Errors.Count != 0)
             {
                 foreach (Error error in Errors)

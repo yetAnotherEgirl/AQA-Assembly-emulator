@@ -67,6 +67,8 @@ namespace AqaAssemEmulator_GUI.backend
             }
         }
 
+        //this returns a string array of the register values, this should only be called from
+        //the CPU so the strings can be included in a larger dump file
         public string[] DumpRegisters()
         {
             string[] dump = new string[Count];
@@ -85,6 +87,7 @@ namespace AqaAssemEmulator_GUI.backend
             }
         }
 
+        //raise the event for a memory error for the CPU to handle
         protected virtual void OnRegisterError(MemoryErrorEventArgs e)
         {
             RegisterError?.Invoke(this, e);

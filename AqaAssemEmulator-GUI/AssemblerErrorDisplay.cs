@@ -45,6 +45,7 @@ namespace AqaAssemEmulator_GUI
                 Error error = Errors[i];
                 string errorString = error.ToString();
 
+                //if the error is in an included file this constant will be recieved in the error object
                 if (error.LineNumber == Error.ErrorInIncludedFile)
                 {
                     errorString += ", error found in included file";
@@ -58,7 +59,7 @@ namespace AqaAssemEmulator_GUI
                 {
                     errorString += ", (none fatal)";
                 }
-                errorString += ".";
+                errorString += "."; //sentances end with a full stop!
                 errors[i] = errorString;
             }
 

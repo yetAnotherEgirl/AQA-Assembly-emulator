@@ -29,6 +29,7 @@ class Register
 
     public string DumpRegister()
     {
+        //return the value in hexadecimal format as this will be useful for debugging
         return value.ToString("X");
     }
 

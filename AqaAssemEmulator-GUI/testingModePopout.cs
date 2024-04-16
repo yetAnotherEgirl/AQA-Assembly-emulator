@@ -41,6 +41,7 @@ namespace AqaAssemEmulator_GUI
             ResumeLayout(false);
         }
 
+        //dont let the user close the form by clicking the x button as it will dispose the form and we need to keep it alive
         private void TestingModePopout_FormClosing(object? sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)

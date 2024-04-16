@@ -43,38 +43,9 @@ namespace AqaAssemEmulator_GUI
             this.Hide();
             this.AutoScroll = true;
 
-            /*x            Evil 
-             *            for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
-             *            {
-             *                RichTextBox headerTextbox = new RichTextBox();
-             *                headerTextbox.ReadOnly = true;
-             *                headerTextbox.Size = EntrySize;
-             *                headerTextbox.Location = new Point(i * EntrySize.Width, 0);
-             *                headerTextbox.BackColor = System.Drawing.SystemColors.Control;
-             *                headerTextbox.BorderStyle = BorderStyle.FixedSingle;
-             *
-             *                TraceTableEntries[i, 0] = headerTextbox;
-             *                this.Controls.Add(headerTextbox);
-             *            }   
-             *
-             *            for (int y = 1; y < TraceTableEntries.GetLength(1); y++)
-             *            {
-             *                for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
-             *                {
-             *                    RichTextBox entryTextbox = new RichTextBox();
-             *                    entryTextbox.ReadOnly = true;
-             *                    entryTextbox.Size = EntrySize;
-             *                    entryTextbox.Location = new Point(x * EntrySize.Width, y * EntrySize.Height);
-             *                    entryTextbox.BorderStyle = BorderStyle.FixedSingle;
-             *
-             *                    TraceTableEntries[x, y] = entryTextbox;
-             *                    this.Controls.Add(entryTextbox);
-             *                }
-             *            }
-             *            int sizeX = (TraceTableEntries.GetLength(0) * EntrySize.Width) + 2;
-             *            int sizeY = (TraceTableEntries.GetLength(1) * EntrySize.Height) + 2;
-             *            this.Size = new Size(sizeX, sizeY);
-             */
+            //originally the trace table entries were created here, but this caused the problems
+            //when the size of the table was changed, so this was moved to UpdateTable(), and later
+            //to InitializeTableData(). leading to better maintainability and readability
 
             this.ResumeLayout(false);
         }
@@ -85,6 +56,8 @@ namespace AqaAssemEmulator_GUI
             List<string> variables;
             if (TestingMode)
             {
+                //when the input variables are passed in, the first 5 variables are always the specific registers,
+                //so we can skip them and only take the universal registers and memory addresses
                 int varIndex = 5;
                 int varCount = Inputvariables.Count - varIndex;
                 variables = Inputvariables.GetRange(varIndex, varCount);
@@ -99,42 +72,41 @@ namespace AqaAssemEmulator_GUI
                 return;
             }
 
-            
+            //if the tracked variables have changed, re-initialise the table
             if(!variables.SequenceEqual(trackedVariables))
             {
                 trackedVariables = variables;
                 InitializeTableData(variables);
             }
 
+
+            //if the table is full, scroll down, "- 1" is to account for the header row
             if (currentRow == TraceTableData.GetLength(1) - 1)
             {
                 Scrolldown();
             }
             
+            //this should never occur, scrolldown should be called before this, however this is a safety check
+            //so the program doesnt crash on the user if an error is encountered
             if (currentRow > TraceTableData.GetLength(1) + 1)
             {
                 return;
             }
             currentRow++;
 
+
+            //get the values for the specific registers, universal registers, and memory addresses
             List<string> values = new List<string>();
             if (!TestingMode) values.AddRange(GetSpecificRegisters());
             values.AddRange(GetUniversalRegisters());
             values.AddRange(GetMemory());
 
-            for (int i = 0; i < values.Count(); i++)
-            {
-                
-                try
-                {
-                    TraceTableData[i, currentRow] = values[i];
-                    if (!TestingMode) TraceTableEntries[i, currentRow].Text = TraceTableData[i, currentRow];
-                }
-                catch (Exception)
-                {
 
-                    throw;
-                }
+            //add the values to the table
+            for (int i = 0; i < values.Count; i++)
+            {
+                TraceTableData[i, currentRow] = values[i];
+                if (!TestingMode) TraceTableEntries[i, currentRow].Text = TraceTableData[i, currentRow];
             }
 
             
@@ -202,7 +174,7 @@ namespace AqaAssemEmulator_GUI
             TraceTableEntries = new TextBox[trackedVariables.Count, TableDepthStep];
             TraceTableData = new string[trackedVariables.Count, TableDepthStep];
 
-            // remove the "- 34" if less than 25 entries
+            // remove the "- 34" if less than 25 entries, as the scrollbar will not be shown
             int scrollBarWidth = 34;
             if(TraceTableEntries.GetLength(0) < 25) scrollBarWidth = 1;
             int EntrySizeX = (TableSize.Width - scrollBarWidth) / TraceTableEntries.GetLength(0);
@@ -210,6 +182,8 @@ namespace AqaAssemEmulator_GUI
 
             Size EntrySize = new Size(EntrySizeX, EntrySizeY);
 
+
+            //create the header row
             for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
             {
                 TextBox headerTextbox = new TextBox();
@@ -224,6 +198,7 @@ namespace AqaAssemEmulator_GUI
                 this.Controls.Add(headerTextbox);
             }
 
+            //create the rest of the table
             for (int y = 1; y < TraceTableEntries.GetLength(1); y++)
             {
                 for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
@@ -245,12 +220,10 @@ namespace AqaAssemEmulator_GUI
                 }
             }
 
-            //x int width = EntrySizeX * TraceTableEntries.GetLength(0) + 2;
-            //x this.Size = new Size(width, TableSize.Height);
-
             this.ResumeLayout(false);
         }
     
+        //trace table depth can be changed by the user, this function updates the depth
         public void UpdateDepth(int depth)
         {
             TableDepthStep = depth;
@@ -263,50 +236,15 @@ namespace AqaAssemEmulator_GUI
 
         public void Clear()
         {
-           /*
-            //if (TraceTableEntries == null)
-            //{
-            //    return;
-            //}
-            //TextBox[] headers = new TextBox[TraceTableEntries.GetLength(0)];
-            //for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
-            //{
-            //    headers[i] = TraceTableEntries[i, 0];
-            //}
-
-
-            //currentRow = 0;
-            //if (TraceTableEntries == null)
-            //{
-            //    return;
-            //}
-
-
-            //for (int y = 0; y < TraceTableEntries.GetLength(1); y++)
-            //{
-            //    for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
-            //    {
-            //        TraceTableData[x, y] = "";
-            //        TraceTableEntries[x, y].BackColor = System.Drawing.SystemColors.Window;
-            //        TraceTableEntries[x, y].Text = "";
-            //    }
-            //}
-
-            //for (int i = 0; i < TraceTableData.GetLength(0); i++)
-            //{
-            //    TraceTableEntries[i, 0] = headers[i];
-            //}
-            
-            //foreach (Control c in Controls)
-            //{
-            //    Controls.Remove(c);
-            //}
-            */
 
             trackedVariables.Clear();
             currentRow = 0;
+
+            //retturn early if the table has not been initialised,
+            //why waste computational power on something that has not been used
             if (TraceTableEntries == null)
             {
+                ResumeLayout(false);
                 return;
             }
 
@@ -316,29 +254,16 @@ namespace AqaAssemEmulator_GUI
             TraceTableData = new string[1,1];
             ResumeLayout(false);
             InitializeComponent();
-
-            //UpdateTable(trackedVariables);
         }
 
         void Scrolldown()
         {
-
-            //string[] headers = new string[TraceTableEntries.GetLength(0)];
-
-            //for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
-            //{
-            //    headers[i] = TraceTableEntries[i, 0].Text;
-            //}
-            //Clear();
-            //UpdateTable(trackedVariables);
-            //for (int i = 0; i < TraceTableEntries.GetLength(0); i++)
-            //{
-            //    TraceTableEntries[i, 0].Text = headers[i];
-            //}
-
+            //copy the old data to a new array, this way we can modify the arrays without losing data
+            //this may be memory inefficient, but it is the easiest way to do this
             TextBox[,] oldTraceTableEntries = TraceTableEntries;    
             string[,] oldTraceTableData = TraceTableData;
 
+            //increase the size of the arrays
             TraceTableEntries = new TextBox[oldTraceTableEntries.GetLength(0),
                 oldTraceTableEntries.GetLength(1) + TableDepthStep];
             TraceTableData = new string[oldTraceTableData.GetLength(0) , oldTraceTableData.GetLength(1) + TableDepthStep];
@@ -349,11 +274,14 @@ namespace AqaAssemEmulator_GUI
             Size EntrySize = new(EntrySizeX, EntrySizeY);
 
             SuspendLayout();
+
+            //remove the old entries from the form
             foreach (TextBox t in Controls)
             {
                 Controls.Remove(t);
             }
 
+            //the next 2 for loops do the same as InitializeTableData(), but also copy the old data into the new arrays
             for (int y = 0; y < oldTraceTableEntries.GetLength(1); y++)
             {
                 for (int x = 0; x < oldTraceTableEntries.GetLength(0); x++)
@@ -388,6 +316,9 @@ namespace AqaAssemEmulator_GUI
             ResumeLayout(false);
         }
 
+
+        //the user will expect pressing enter to cause the trace table entry to be checked,
+        //TraceTableEntry_OnLeave() is the function that does this, so we call it here
         void TraceTableEntry_OnKeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -398,26 +329,39 @@ namespace AqaAssemEmulator_GUI
 
         void TraceTableEntry_OnLeave(object? sender, EventArgs e)
         {
+            //this code is not easy to read, but it is the most efficient way to do this,
+            //a new possibly null textbox is created, and then the sender is cast to a textbox,
+            //if the sender is null, an exception is thrown, if not, the textbox is assigned to the new textbox
             TextBox? textBox = (TextBox?)sender ?? throw new ArgumentNullException(nameof(sender));
+
+
+            //these 2 for loops iterate through the entire TraceTableEntries array
             for(int y = 0; y < TraceTableEntries.GetLength(1); y++)
             {
                 for (int x = 0; x < TraceTableEntries.GetLength(0); x++)
                 {
+                    //if the textbox is not the one we are looking for, skip to the next iteration
                     if (TraceTableEntries[x, y] != textBox)
                     {
                         continue;
                     }
+
+                    //if the textbox is empty, set the background to the default colour and return,
+                    //users may find it annoying if they accidentally press enter on an empty textbox and
+                    //the background changes colour
                     if (TraceTableData[x, y] == "")
                     {
                         TraceTableEntries[x, y].BackColor = System.Drawing.SystemColors.Window;
                         TraceTableEntries[x, y].Text = "";
                         return;
                     }
+                    //if the textbox text is the same as the data in the table, set the background to a nice green colour
                     if (textBox.Text == TraceTableData[x, y])
                     {
                         TraceTableEntries[x, y].BackColor = Color.FromArgb(171, 233, 179);
                         return;
                     }
+                    //if the textbox text is not the same as the data in the table, set the background to a nice red colour
                     else
                     {
                         TraceTableEntries[x, y].BackColor = Color.FromArgb(242, 143, 173);
@@ -427,6 +371,8 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //this function removes the extra lines from the trace table, this is used in testing mode,
+        //this function works by removing all empty textboxes from the form controls
         public void RemoveExtraLines()
         {
             if (!TestingMode) return;
@@ -441,6 +387,8 @@ namespace AqaAssemEmulator_GUI
 
         }
 
+
+        //this function returns the depth of the trace table
         public int GetDepth()
         {
             return TableDepthStep;

@@ -19,8 +19,22 @@ namespace AqaAssemEmulator_GUI
         int Input;
 
         bool InputValid = false;
-        
-        public InputDialog(string inputText)
+
+        //this is the function that should be called to get the input from the user,
+        //we create an instance of the InputDialog class and show it as a dialog,
+        //then we return the input value
+        public static int GetInput(string inputText)
+        {
+            InputDialog inputDialog = new(inputText);
+            inputDialog.ShowDialog();
+            return inputDialog.Input;
+        }
+
+        //the constructor of the InputDialog class is marked as private to
+        //prevent the creation of an instance of the class, the 
+        //GetInput method is used to create an instance of the InputDialog
+        //class and show it as a dialog then return the input value
+        InputDialog(string inputText)
         {
             InitializeComponent();
 
@@ -63,13 +77,7 @@ namespace AqaAssemEmulator_GUI
             
         }
 
-        public static int GetInput(string inputText)
-        {
-            InputDialog inputDialog = new InputDialog(inputText);
-            inputDialog.ShowDialog();
-            return inputDialog.Input;
-        }
-
+        //this runs when the user clicks the OK button
         private void OkButton_Click(object sender, EventArgs e)
         {
             try
@@ -80,10 +88,13 @@ namespace AqaAssemEmulator_GUI
             }
             catch (Exception)
             {
+                //if the input is not an integer, we show a message to the user
+                //this is ran as a task so the UI thread doesn't get blocked
                 Task.Run(() => WrongDialogEntered());
             }
         }
 
+        //dont let the user close the dialog if the input is not valid
         private void InputDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!InputValid)
@@ -94,6 +105,8 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //this runs when the user presses the Enter key, the user will expect pressing enter
+        //to be the same as clicking the OK button
         private void InputTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -102,6 +115,7 @@ namespace AqaAssemEmulator_GUI
             }
         }
 
+        //this should be ran as a task so the UI thread doesn't get blocked
         private async void WrongDialogEntered()
         {
             InputTextLabel.Text = "Please enter an Integer!";

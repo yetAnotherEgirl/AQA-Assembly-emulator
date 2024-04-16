@@ -13,6 +13,7 @@ namespace AqaAssemEmulator_GUI
 
         internal CPU Cpu { get; set; }
 
+        //specific registers
         RichTextBox Header;
         RichTextBox ProgramCounter;
         RichTextBox MemoryAddressRegister;
@@ -22,10 +23,12 @@ namespace AqaAssemEmulator_GUI
 
         RichTextBox[] GeneralRegisters;
 
+        //arrows
         PictureBox PCtoMARarrow;
         PictureBox MDRtoALUarrow;
 
-        int padding = 10;
+        //used to define the distance between components
+        const int PADDING = 10;
 
         internal CpuInfoComponent(ref CPU cpu)
         {
@@ -44,7 +47,7 @@ namespace AqaAssemEmulator_GUI
             #region define header 
             Header = new RichTextBox();
             Size headerSize = new Size(125, 60);
-            Point headerLocation = new Point(250 - headerSize.Width / 2, padding);
+            Point headerLocation = new Point(250 - headerSize.Width / 2, PADDING);
 
             Header.Location = headerLocation;
             Header.Size = headerSize;
@@ -60,7 +63,7 @@ namespace AqaAssemEmulator_GUI
 
             #region define program counter
             ProgramCounter = new RichTextBox();
-            Point programCounterLocation = new Point(padding, 100);
+            Point programCounterLocation = new Point(PADDING, 100);
             Size programCounterSize = new Size(200, 40);
 
             ProgramCounter.Location = programCounterLocation;
@@ -79,7 +82,7 @@ namespace AqaAssemEmulator_GUI
             MemoryAddressRegister = new RichTextBox();
             Size MemoryAddressRegisterSize = new Size(200, 40);
             Point MemoryAddressRegisterLocation = new Point(
-                this.Size.Width - (padding + MemoryAddressRegisterSize.Width), 100);
+                this.Size.Width - (PADDING + MemoryAddressRegisterSize.Width), 100);
 
             MemoryAddressRegister.Location = MemoryAddressRegisterLocation;
             MemoryAddressRegister.Size = MemoryAddressRegisterSize;
@@ -121,7 +124,7 @@ namespace AqaAssemEmulator_GUI
 
             #region define ArithmaticLogicUnit
             Accumulator = new RichTextBox();
-            Point AccumulatorLocation = new Point(padding, 200);
+            Point AccumulatorLocation = new Point(PADDING, 200);
             Size ArithmaticLogicUnitSize = new Size(200, 40);
 
             Accumulator.Location = AccumulatorLocation;
@@ -155,7 +158,7 @@ namespace AqaAssemEmulator_GUI
                 GeneralRegisters[i] = new RichTextBox();
                 
 
-                int locationX = padding;
+                int locationX = PADDING;
                 if (i % 2 == 1) locationX = MemoryAddressRegisterLocation.X;
                 
                 int locationY = offset + (i / 2) * 50;
@@ -180,7 +183,7 @@ namespace AqaAssemEmulator_GUI
 
             #region define CPSR flag
             CPSRflag = new RichTextBox();
-            Point CPSRflagLocation = new Point(padding, this.Size.Height - 50);
+            Point CPSRflagLocation = new Point(PADDING, this.Size.Height - 50);
             Size CPSRflagSize = new Size(200, 40);
 
             CPSRflag.Location = CPSRflagLocation;
@@ -198,6 +201,7 @@ namespace AqaAssemEmulator_GUI
             this.ResumeLayout(false);
         }
 
+        //updates the values of the registers
         public void UpdateRegisters()
         {
             this.SuspendLayout();
