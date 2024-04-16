@@ -15,6 +15,7 @@ internal class MachineCodeLine
     public List<int> arguments;
     public int AddressMode;
 
+    //this constructor is used to create a new MachineCodeLine object with all the fields given
     public MachineCodeLine(int instruction, List<int> arguments, int AddressMode)
     {
         this.instruction = instruction;
@@ -22,6 +23,7 @@ internal class MachineCodeLine
         this.AddressMode = AddressMode;
     }
 
+    //this constructor is used to create a new MachineCodeLine object with no fields given
     public MachineCodeLine()
     {
         instruction = 0;

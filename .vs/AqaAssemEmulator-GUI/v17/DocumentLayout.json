@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{62540C24-74C9-455F-9A41-207EBD85EED6}|AqaAssemEmulator-GUI\\AqaAssemEmulator-GUI.csproj|c:\\users\\emmy\\source\\repos\\aqa-assembly-emulator\\aqaassememulator-gui\\backend\\machinecodeline.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{62540C24-74C9-455F-9A41-207EBD85EED6}|AqaAssemEmulator-GUI\\AqaAssemEmulator-GUI.csproj|solutionrelative:aqaassememulator-gui\\backend\\machinecodeline.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -22,6 +27,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MachineCodeLine.cs",
+              "DocumentMoniker": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\backend\\MachineCodeLine.cs",
+              "RelativeDocumentMoniker": "AqaAssemEmulator-GUI\\backend\\MachineCodeLine.cs",
+              "ToolTip": "C:\\Users\\emmy\\source\\repos\\AQA-Assembly-emulator\\AqaAssemEmulator-GUI\\backend\\MachineCodeLine.cs",
+              "RelativeToolTip": "AqaAssemEmulator-GUI\\backend\\MachineCodeLine.cs",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAxwBkAAABaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-16T21:45:30.994Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AqaAssemEmulator_GUI.AssemblerErrorDisplay">
+    <Position X="10" Y="2.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>AssemblerErrorDisplay.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.CpuInfoComponent">
+    <Position X="3.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BAQIAAAIAAAAAAAAgACEAgACAgEAAAAABAAAAACAAAA=</HashCode>
+      <FileName>CpuInfoComponent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.EmulatorErrorDisplay">
+    <Position X="10" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>EmulatorErrorDisplay.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.ErrorDisplay&lt;T&gt;">
+    <Position X="7.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAgQgAAAAAQAQABAAAAgAASIAAAAAIAAAAAAIDAAAA=</HashCode>
+      <FileName>ErrorDisplay.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.Window">
+    <Position X="0.5" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>hAA4DSJiAGykACAoQACgUngLACIGAOgAyAUGgAiAISA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.InputDialog">
+    <Position X="3.75" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAACAAAACIAAACEAACAAAASEBAAAIIAAAAAAAAAAAw=</HashCode>
+      <FileName>InputDialog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.MemoryComponent">
+    <Position X="12.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAACAAAAAAAAAACAAIAAAAAAAAwAAABAAA=</HashCode>
+      <FileName>MemoryComponent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.MemoryGrid">
+    <Position X="3.75" Y="9.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAgAAAAAAEAAACAAAAAAAAQAAAAAIAAIA=</HashCode>
+      <FileName>MemoryGrid.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.Program">
+    <Position X="6" Y="0.5" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.RamGrid">
+    <Position X="7.5" Y="5.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAACIEAAAAAACAAAAGAiAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RamGrid.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.TestingModePopout">
+    <Position X="10" Y="4.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAACAAAAAAACgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>testingModePopout.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.D">
+    <Position X="10" Y="7" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAgshEAgAAQgAAAAAAAQAASCIAAAAAIgAAADAAFAIAA=</HashCode>
+      <FileName>TraceTable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AqaAssemEmulator_GUI.backend.Assembler">
+    <Position X="0.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAUQAAAADAAAAyBAEAAhABCAAAAQAEAAAARAABAgUAA=</HashCode>
+      <FileName>backend\Assembler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.Constants">
+    <Position X="3.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAEIhAAAAAAAAACgAAAAABAIABAAQAAAA=</HashCode>
+      <FileName>backend\Constants.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.CPU">
+    <Position X="5.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>EgQiAABQDASABaRhAEGECCEYC2hMIAABgQCAYAVgoAA=</HashCode>
+      <FileName>backend\CPU.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.EmulatorErrorEventArgs">
+    <Position X="3.25" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>backend\EmulatorErrorEvents.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.MemoryErrorEventArgs">
+    <Position X="3.25" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>backend\EmulatorErrorEvents.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.GenericRegisters">
+    <Position X="0.5" Y="6.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAABAAAAAAACAQAQQAAAAAAQQCAAAAAAAA=</HashCode>
+      <FileName>backend\GenericRegisters.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.MachineCodeLine">
+    <Position X="8.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAACAAAIAAAAAA=</HashCode>
+      <FileName>backend\MachineCodeLine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.Memory">
+    <Position X="8.5" Y="2.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AABgACAQAAAABACABCAAAABAAAAAAAAAAAAAAAIAAgA=</HashCode>
+      <FileName>backend\Memory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.Register">
+    <Position X="8.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAABAAAAAAECAAAAQAAACAAAAAAAQAAAAA=</HashCode>
+      <FileName>backend\Register.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.Error">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>backend\Error.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.AssemblerError">
+    <Position X="13" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAEAAAIAABAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>backend\Error.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AqaAssemEmulator_GUI.backend.EmulatorError">
+    <Position X="13" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>backend\Error.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="AqaAssemEmulator_GUI.backend.CPSRFlags">
+    <Position X="4" Y="7.75" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAAQAAAAAAAAAAAAGAAAA=</HashCode>
+      <FileName>backend\Constants.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
